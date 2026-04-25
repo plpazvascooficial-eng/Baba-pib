@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+  <meta name="theme-color" content="#0d1b3e"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <title>Arena PIB — Confirmar Presença ⚽</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    body{background:radial-gradient(ellipse at 30% 0%,#0d1b3e,#080c1a 60%);min-height:100vh;color:#fff;font-family:'Syne',sans-serif;display:flex;flex-direction:column;align-items:center;padding:40px 20px 60px}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes pulse{0%,100%{box-shadow:0 0 0 0 #00C2FF44}50%{box-shadow:0 0 0 12px #00C2FF00}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .fu{animation:fadeUp 0.5s ease forwards}
+    .fu2{animation:fadeUp 0.5s 0.1s ease both}
+    .fu3{animation:fadeUp 0.5s 0.2s ease both}
+    .fu4{animation:fadeUp 0.5s 0.3s ease both}
+    .card{background:linear-gradient(145deg,#1a1a2e,#131325);border:1px solid #ffffff14;border-radius:22px;padding:28px 24px;width:100%;max-width:420px;box-shadow:0 20px 60px #00000088}
+    .pos-card{padding:16px 12px;border-radius:14px;border:2px solid #ffffff12;background:#ffffff07;cursor:pointer;text-align:center;transition:all 0.2s}
+    .spinner{width:20px;height:20px;border:3px solid #fff4;border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block}
+    .player-item{display:flex;align-items:center;gap:12px;background:#ffffff08;border:1px solid #ffffff0f;border-radius:12px;padding:11px 14px;margin-bottom:8px}
+    .pending-badge{font-size:9px;background:#FFD70020;color:#FFD700;border-radius:4px;padding:2px 7px;font-weight:700}
+  </style>
+</head>
+<body>
+<span class="fu" style="font-size:52px;margin-bottom:8px;display:block;text-align:center">⚽</span>
+<div class="fu" style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:3px;background:linear-gradient(90deg,#fff 40%,#00C2FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;text-align:center">ARENA PIB</div>
+<div class="fu2" style="font-size:13px;color:#666;letter-spacing:1px;text-align:center;margin-bottom:32px">Confirme sua presença no baba</div>
+
+<div class="card fu3" id="form-card">
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff;margin-bottom:14px">👤 SEU NOME</div>
+  <input id="login-name" placeholder="Como o ADM te cadastrou?" maxlength="30" autocomplete="off" autocorrect="off" spellcheck="false"
+    style="width:100%;background:#ffffff0d;border:1.5px solid #ffffff18;border-radius:10px;padding:12px 14px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;outline:none;margin-bottom:16px;box-sizing:border-box;-webkit-appearance:none"/>
+
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff;margin-bottom:12px">⚽ SUA POSIÇÃO</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
+    <div id="pos-Goleiro" onclick="selectPos('Goleiro')" class="pos-card"><div style="font-size:24px">🧤</div><div style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:#aaa;letter-spacing:1px;margin-top:4px">Goleiro</div></div>
+    <div id="pos-Defesa" onclick="selectPos('Defesa')" class="pos-card"><div style="font-size:24px">🛡️</div><div style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:#aaa;letter-spacing:1px;margin-top:4px">Defesa</div></div>
+    <div id="pos-Meio-campo" onclick="selectPos('Meio-campo')" class="pos-card"><div style="font-size:24px">⚙️</div><div style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:#aaa;letter-spacing:1px;margin-top:4px">Meio-campo</div></div>
+    <div id="pos-Atacante" onclick="selectPos('Atacante')" class="pos-card"><div style="font-size:24px">🎯</div><div style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:#aaa;letter-spacing:1px;margin-top:4px">Atacante</div></div>
+  </div>
+
+  <div id="login-error" style="display:none;background:#ff444415;border:1px solid #ff444440;border-radius:8px;padding:10px 12px;font-size:12px;color:#ff6666;margin-bottom:12px">
+    🚫 Nome não encontrado. Verifique com o ADM.
+  </div>
+
+  <button onclick="confirmar()" id="confirm-btn"
+    style="width:100%;padding:16px;border-radius:12px;border:none;background:linear-gradient(135deg,#00C2FF,#0055ff);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;cursor:pointer;-webkit-appearance:none;box-shadow:0 4px 20px #00C2FF44;display:flex;align-items:center;justify-content:center;gap:10px">
+    CONFIRMAR PRESENÇA
+  </button>
+</div>
+
+<!-- SUCCESS -->
+<div id="success-card" class="card fu3" style="display:none;text-align:center">
+  <div style="font-size:56px;margin-bottom:12px">🎉</div>
+  <div id="success-name" style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:#2ECC71;margin-bottom:8px"></div>
+  <div style="font-size:14px;color:#888;line-height:1.6;margin-bottom:16px">Você está na lista do baba!</div>
+  <div style="background:#FFD70012;border:1px solid #FFD70030;border-radius:10px;padding:12px;font-size:12px;color:#FFD700bb;line-height:1.6">
+    <strong style="color:#FFD700;display:block;margin-bottom:4px">⏳ Aguardando nota</strong>
+    O ADM vai avaliar sua habilidade antes do sorteio.
+  </div>
+</div>
+
+<!-- LISTA -->
+<div class="fu4" style="margin-top:28px;width:100%;max-width:420px">
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#555;text-align:center;margin-bottom:14px">QUEM JÁ CONFIRMOU</div>
+  <div id="player-list"></div>
+</div>
+
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyDJ3BB-IRyh9DIrDR15qlmWflzra7LGVj0",
+  authDomain:"pib-123.firebaseapp.com",
+  databaseURL:"https://pib-123-default-rtdb.firebaseio.com",
+  projectId:"pib-123",
+  storageBucket:"pib-123.firebasestorage.app",
+  messagingSenderId:"652801707789",
+  appId:"1:652801707789:web:ac51161bb9845a2400ea44"
+});
+const db=firebase.database();
+const playersRef=db.ref("jogadores");
+const POS_COLORS={"Goleiro":"#FF6B35","Defesa":"#00C2FF","Meio-campo":"#9B59B6","Atacante":"#2ECC71"};
+const QUALITY_LABELS={1:"Fraco",2:"Regular",3:"Bom",4:"Ótimo",5:"Elite"};
+let selectedPos=null;
+
+window.selectPos=function(pos){
+  const colors={"Goleiro":"#FF6B35","Defesa":"#00C2FF","Meio-campo":"#9B59B6","Atacante":"#2ECC71"};
+  ["Goleiro","Defesa","Meio-campo","Atacante"].forEach(p=>{
+    const el=document.getElementById("pos-"+p);
+    if(p===pos){el.style.borderColor=colors[p];el.style.background=colors[p]+"25";el.querySelector("div:last-child").style.color=colors[p];}
+    else{el.style.borderColor="#ffffff12";el.style.background="#ffffff07";el.querySelector("div:last-child").style.color="#aaa";}
+  });
+  selectedPos=pos;
+};
+
+window.confirmar=async function(){
+  const name=(document.getElementById("login-name").value||"").trim();
+  if(!name){alert("Digite seu nome!");return;}
+  if(!selectedPos){alert("Escolha sua posição!");return;}
+  const btn=document.getElementById("confirm-btn");
+  btn.innerHTML=`<div class="spinner"></div> VERIFICANDO...`;
+  btn.disabled=true;
+  try{
+    const snap=await playersRef.once("value");
+    const data=snap.val()||{};
+    const existing=Object.entries(data).find(([id,p])=>p.name.toLowerCase()===name.toLowerCase());
+    if(!existing){
+      document.getElementById("login-error").style.display="block";
+      btn.innerHTML="CONFIRMAR PRESENÇA";btn.disabled=false;
+      return;
+    }
+    document.getElementById("login-error").style.display="none";
+    await playersRef.child(existing[0]).update({position:selectedPos,presente:true,confirmedAt:Date.now()});
+    document.getElementById("form-card").style.display="none";
+    document.getElementById("success-card").style.display="block";
+    document.getElementById("success-name").textContent="Bem-vindo, "+existing[1].name+"! 👋";
+  }catch(e){
+    btn.innerHTML="CONFIRMAR PRESENÇA";btn.disabled=false;
+    alert("Erro de conexão. Tente novamente.");
+  }
+};
+
+// Live list of confirmed players
+playersRef.orderBy("name").on("value",snap=>{
+  const data=snap.val()||{};
+  const players=Object.values(data).filter(p=>p.presente).sort((a,b)=>a.name.localeCompare(b.name));
+  const el=document.getElementById("player-list");
+  if(!players.length){el.innerHTML=`<div style="text-align:center;color:#333;font-size:13px;padding:20px">Nenhum confirmado ainda!</div>`;return;}
+  el.innerHTML=players.map(p=>{
+    const c=POS_COLORS[p.position]||"#888";
+    const hasQ=p.quality&&p.quality>0;
+    const stars=hasQ?[1,2,3,4,5].map(s=>`<span style="color:${s<=p.quality?'#FFD700':'#252530'}">★</span>`).join(''):`<span class="pending-badge">⏳ Aguardando ADM</span>`;
+    return `<div class="player-item">
+      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,${c},${c}88);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:16px;color:#fff;font-weight:900;flex-shrink:0">${p.name.charAt(0)}</div>
+      <div style="flex:1">
+        <div><span style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:#fff">${p.name}</span>
+          <span style="font-size:9px;font-weight:700;text-transform:uppercase;border-radius:4px;padding:2px 6px;margin-left:6px;background:${c}33;color:${c}">${p.position}</span></div>
+        <div style="margin-top:4px;font-size:12px">${stars}</div>
+      </div>
+      <span style="font-size:16px">✅</span>
+    </div>`;
+  }).join('');
+});
+</script>
+</body>
+</html>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
