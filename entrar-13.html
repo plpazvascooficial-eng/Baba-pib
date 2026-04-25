@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+  <meta name="theme-color" content="#0d1b3e"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <title>Arena PIB — Confirmar Presença ⚽</title>
+  <link rel="manifest" href="manifest.json"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    body{background:radial-gradient(ellipse at 30% 0%,#0d1b3e,#080c1a 60%);min-height:100vh;color:#fff;font-family:'Syne',sans-serif;display:flex;flex-direction:column;align-items:center;padding:40px 20px 60px}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes pulse{0%,100%{box-shadow:0 0 0 0 #00C2FF44}50%{box-shadow:0 0 0 12px #00C2FF00}}
+    .fu{animation:fadeUp 0.5s ease forwards}
+    .fu2{animation:fadeUp 0.5s 0.1s ease both}
+    .fu3{animation:fadeUp 0.5s 0.2s ease both}
+    .card{background:linear-gradient(145deg,#1a1a2e,#131325);border:1px solid #ffffff14;border-radius:22px;padding:28px 24px;width:100%;max-width:420px;box-shadow:0 20px 60px #00000088}
+    .name-input{width:100%;background:#ffffff0d;border:1.5px solid #ffffff18;border-radius:12px;padding:14px 16px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;outline:none;transition:border-color 0.2s;margin-bottom:20px;-webkit-appearance:none}
+    .name-input::placeholder{color:#333;font-size:18px}
+    .name-input:focus{border-color:#00C2FF88}
+    .section-label{font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px}
+    .pos-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
+    .pos-card{padding:16px 12px;border-radius:14px;border:2px solid #ffffff12;background:#ffffff07;cursor:pointer;transition:all 0.2s;text-align:center}
+    .pos-card.active{border-color:var(--c);background:color-mix(in srgb,var(--c) 18%,transparent);box-shadow:0 4px 20px color-mix(in srgb,var(--c) 30%,transparent)}
+    .pos-icon{font-size:28px;display:block;margin-bottom:6px}
+    .pos-name{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:1px;color:#aaa}
+    .pos-card.active .pos-name{color:var(--c)}
+    .submit-btn{width:100%;padding:18px;border-radius:14px;border:none;background:linear-gradient(135deg,#00C2FF,#0055ff);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;cursor:pointer;box-shadow:0 6px 30px #00C2FF44;animation:pulse 2s infinite;transition:opacity 0.2s;-webkit-appearance:none}
+    .submit-btn:disabled{background:#ffffff12;color:#444;box-shadow:none;animation:none;cursor:not-allowed}
+    .error-box{display:none;background:#ff444415;border:1px solid #ff444440;border-radius:10px;padding:12px 14px;font-size:12px;color:#ff6666;margin-bottom:14px}
+    .success{display:none;text-align:center;padding:20px 0}
+    .player-list{margin-top:28px;width:100%;max-width:420px}
+    .list-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#555;text-align:center;margin-bottom:14px}
+    .player-item{display:flex;align-items:center;gap:12px;background:#ffffff08;border:1px solid #ffffff0f;border-radius:12px;padding:11px 14px;margin-bottom:8px}
+    .player-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:16px;color:#fff;flex-shrink:0}
+  </style>
+</head>
+<body>
+<span style="font-size:56px;margin-bottom:10px;display:block;text-align:center" class="fu">⚽</span>
+<div style="font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:3px;background:linear-gradient(90deg,#fff 40%,#00C2FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;text-align:center" class="fu">ARENA PIB</div>
+<div style="font-size:13px;color:#666;letter-spacing:1px;text-align:center;margin-bottom:36px" class="fu2">Confirme sua presença no baba</div>
+
+<div class="card fu3">
+  <div id="form-area">
+    <div class="section-label">Seu nome</div>
+    <input class="name-input" id="inp-name" placeholder="Como te chamam?" maxlength="30" autocomplete="off" autocorrect="off" spellcheck="false"/>
+    <div class="section-label">Sua posição</div>
+    <div class="pos-grid" id="pos-grid">
+      <div class="pos-card" data-pos="Goleiro" style="--c:#FF6B35"><span class="pos-icon">🧤</span><div class="pos-name">Goleiro</div></div>
+      <div class="pos-card" data-pos="Defesa" style="--c:#00C2FF"><span class="pos-icon">🛡️</span><div class="pos-name">Defesa</div></div>
+      <div class="pos-card" data-pos="Meio-campo" style="--c:#9B59B6"><span class="pos-icon">⚙️</span><div class="pos-name">Meio-campo</div></div>
+      <div class="pos-card" data-pos="Atacante" style="--c:#2ECC71"><span class="pos-icon">🎯</span><div class="pos-name">Atacante</div></div>
+    </div>
+    <div class="error-box" id="error-box">🚫 Nome não encontrado. Verifique com o ADM.</div>
+    <button class="submit-btn" id="submit-btn" disabled>CONFIRMAR PRESENÇA ⚽</button>
+  </div>
+  <div class="success" id="success-area">
+    <div style="font-size:64px;margin-bottom:16px">🎉</div>
+    <div id="success-name" style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:#2ECC71;margin-bottom:8px"></div>
+    <div style="font-size:14px;color:#888;line-height:1.6">Você está na lista do baba!</div>
+    <div style="background:#ffffff08;border-radius:12px;padding:14px 20px;font-size:12px;color:#666;line-height:1.6;max-width:320px;margin-top:16px">
+      <strong style="color:#FFD700;display:block;margin-bottom:4px">⏳ Aguardando nota</strong>
+      O ADM vai avaliar sua habilidade antes do sorteio.
+    </div>
+  </div>
+</div>
+
+<div class="player-list">
+  <div class="list-title">QUEM JÁ CONFIRMOU</div>
+  <div id="player-list-items"></div>
+</div>
+
+<script>
+const LS_KEY = "arenapib_jogadores";
+const POS_COLORS = {"Goleiro":"#FF6B35","Defesa":"#00C2FF","Meio-campo":"#9B59B6","Atacante":"#2ECC71"};
+let selectedPos = null;
+
+function lsLoad(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||"{}"); }catch(e){ return {}; } }
+function lsSave(d){ try{ localStorage.setItem(LS_KEY,JSON.stringify(d)); }catch(e){} }
+
+function validate(){
+  const name = document.getElementById("inp-name").value.trim();
+  document.getElementById("submit-btn").disabled = !(name.length>=2 && selectedPos);
+}
+
+function renderList(){
+  const data = lsLoad();
+  const presentes = Object.values(data).filter(p=>p.presente===true);
+  const el = document.getElementById("player-list-items");
+  if(!presentes.length){
+    el.innerHTML=`<div style="text-align:center;color:#333;font-size:13px;padding:20px">Nenhum jogador confirmou ainda</div>`;
+    return;
+  }
+  el.innerHTML = presentes.map(p=>{
+    const c = POS_COLORS[p.position]||"#888";
+    return `<div class="player-item">
+      <div class="player-avatar" style="background:linear-gradient(135deg,${c},${c}88)">${(p.name||"?").charAt(0)}</div>
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px">${p.name}</div>
+        <span style="font-size:9px;background:${c}33;color:${c};border-radius:4px;padding:2px 6px;font-weight:700;text-transform:uppercase">${p.position}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById("pos-grid").addEventListener("click", e=>{
+  const card = e.target.closest("[data-pos]"); if(!card) return;
+  document.querySelectorAll(".pos-card").forEach(c=>c.classList.remove("active"));
+  card.classList.add("active");
+  selectedPos = card.dataset.pos;
+  validate();
+});
+
+document.getElementById("inp-name").addEventListener("input", validate);
+
+document.getElementById("submit-btn").addEventListener("click", ()=>{
+  const name = document.getElementById("inp-name").value.trim();
+  if(!name || !selectedPos) return;
+  const data = lsLoad();
+  const existing = Object.entries(data).find(([id,p])=>p.name&&p.name.toLowerCase()===name.toLowerCase());
+  if(!existing){
+    document.getElementById("error-box").style.display="block";
+    return;
+  }
+  document.getElementById("error-box").style.display="none";
+  const [id, player] = existing;
+  data[id] = {...player, position: selectedPos, presente: true, confirmedAt: Date.now()};
+  lsSave(data);
+  document.getElementById("form-area").style.display="none";
+  document.getElementById("success-area").style.display="block";
+  document.getElementById("success-name").textContent="Bem-vindo, "+player.name+"! 👋";
+  renderList();
+});
+
+renderList();
+</script>
+</body>
+</html>
