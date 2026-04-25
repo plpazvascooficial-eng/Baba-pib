@@ -1,0 +1,25 @@
+{
+  "name": "Arena PIB ⚽",
+  "short_name": "Arena PIB",
+  "description": "Arena PIB — sorteio de times equilibrados",
+  "start_url": "/Baba-pib/index.html",
+  "scope": "/Baba-pib/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#080c1a",
+  "theme_color": "#0d1b3e",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
