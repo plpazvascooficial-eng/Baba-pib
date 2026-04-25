@@ -77,6 +77,60 @@
   </style>
 </head>
 <body>
+<div id="login-screen" style="display:none;position:fixed;inset:0;background:radial-gradient(ellipse at 30% 0%,#0d1b3e,#080c1a 60%);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px">
+  <div style="font-size:56px;margin-bottom:10px">⚽</div>
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:3px;background:linear-gradient(90deg,#fff 40%,#00C2FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px">SQUAD RANK</div>
+  <div style="font-size:13px;color:#666;letter-spacing:1px;margin-bottom:40px">Baba do PIB</div>
+
+  <div style="width:100%;max-width:380px;display:flex;flex-direction:column;gap:14px">
+    <!-- JOGADOR -->
+    <div style="background:linear-gradient(145deg,#1a1a2e,#131325);border:1px solid #ffffff14;border-radius:20px;padding:22px 20px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff;margin-bottom:14px">👤 SOU JOGADOR</div>
+      <input id="login-name" placeholder="Digite seu nome" maxlength="30" autocomplete="off" autocorrect="off" spellcheck="false"
+        style="width:100%;background:#ffffff0d;border:1.5px solid #ffffff18;border-radius:10px;padding:12px 14px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;outline:none;margin-bottom:10px;box-sizing:border-box"/>
+      <div id="pos-grid-login" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <div data-pos="Goleiro" style="padding:12px 8px;border-radius:12px;border:2px solid #ffffff12;background:#ffffff07;cursor:pointer;text-align:center;transition:all 0.2s">
+          <div style="font-size:22px">🧤</div><div style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:#aaa;letter-spacing:1px">Goleiro</div>
+        </div>
+        <div data-pos="Defesa" style="padding:12px 8px;border-radius:12px;border:2px solid #ffffff12;background:#ffffff07;cursor:pointer;text-align:center;transition:all 0.2s">
+          <div style="font-size:22px">🛡️</div><div style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:#aaa;letter-spacing:1px">Defesa</div>
+        </div>
+        <div data-pos="Meio-campo" style="padding:12px 8px;border-radius:12px;border:2px solid #ffffff12;background:#ffffff07;cursor:pointer;text-align:center;transition:all 0.2s">
+          <div style="font-size:22px">⚙️</div><div style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:#aaa;letter-spacing:1px">Meio-campo</div>
+        </div>
+        <div data-pos="Atacante" style="padding:12px 8px;border-radius:12px;border:2px solid #ffffff12;background:#ffffff07;cursor:pointer;text-align:center;transition:all 0.2s">
+          <div style="font-size:22px">🎯</div><div style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:#aaa;letter-spacing:1px">Atacante</div>
+        </div>
+      </div>
+      <div id="login-error" style="display:none;background:#ff444415;border:1px solid #ff444440;border-radius:8px;padding:10px 12px;font-size:12px;color:#ff6666;margin-bottom:10px">
+        🚫 Nome não encontrado. Verifique com o ADM.
+      </div>
+      <button id="login-player-btn" style="width:100%;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,#00C2FF,#0055ff);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;-webkit-appearance:none">CONFIRMAR PRESENÇA</button>
+    </div>
+
+    <!-- ADM -->
+    <div style="background:#ffffff08;border:1px solid #ffffff0f;border-radius:20px;padding:18px 20px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff;margin-bottom:12px">🔐 SOU ADM</div>
+      <input id="adm-password" type="password" placeholder="Senha do ADM" 
+        style="width:100%;background:#ffffff0d;border:1.5px solid #ffffff18;border-radius:10px;padding:12px 14px;color:#fff;font-family:'Syne',sans-serif;font-size:16px;outline:none;margin-bottom:10px;box-sizing:border-box"/>
+      <div id="adm-error" style="display:none;background:#ff444415;border:1px solid #ff444440;border-radius:8px;padding:10px 12px;font-size:12px;color:#ff6666;margin-bottom:10px">
+        🚫 Senha incorreta!
+      </div>
+      <button id="login-adm-btn" style="width:100%;padding:14px;border-radius:12px;border:none;background:#ffffff10;border:1px solid #ffffff20;color:#aaa;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;-webkit-appearance:none">ENTRAR COMO ADM</button>
+    </div>
+  </div>
+</div>
+
+<div id="success-screen" style="display:none;position:fixed;inset:0;background:radial-gradient(ellipse at 30% 0%,#0d1b3e,#080c1a 60%);z-index:500;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center">
+  <div style="font-size:64px;margin-bottom:16px">🎉</div>
+  <div id="success-player-name" style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:#2ECC71;margin-bottom:8px"></div>
+  <div style="font-size:14px;color:#888;line-height:1.6;margin-bottom:20px">Você está na lista do baba!</div>
+  <div style="background:#ffffff08;border-radius:12px;padding:14px 20px;font-size:12px;color:#666;line-height:1.6;max-width:320px">
+    <strong style="color:#FFD700;display:block;margin-bottom:4px">⏳ Aguardando nota</strong>
+    O ADM vai avaliar sua habilidade antes do sorteio.
+  </div>
+</div>
+
 <div id="app"><div class="loading-screen"><div class="big-spinner"></div><div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:#555">CARREGANDO...</div></div></div>
 
 <script>
@@ -96,30 +150,63 @@ const POSITIONS = ["Goleiro","Defesa","Meio-campo","Atacante"];
 const POS_COLORS = {"Goleiro":{bg:"#FF6B35",glow:"#FF6B3530"},"Defesa":{bg:"#00C2FF",glow:"#00C2FF30"},"Meio-campo":{bg:"#9B59B6",glow:"#9B59B630"},"Atacante":{bg:"#2ECC71",glow:"#2ECC7130"}};
 const QUALITY_LABELS = {1:"Fraco",2:"Regular",3:"Bom",4:"Ótimo",5:"Elite"};
 const TEAM_THEMES = [{name:"Time A",color:"#FF4444",emoji:"🔴"},{name:"Time B",color:"#4488FF",emoji:"🔵"},{name:"Time C",color:"#44CC44",emoji:"🟢"},{name:"Time D",color:"#FFB800",emoji:"🟡"}];
-const POS_WEIGHT = {"Goleiro":5,"Meio-campo":4,"Defesa":3,"Atacante":3};
 
-let state = {tab:"jogadores",players:[],loading:true,modal:null,filterPos:"Todos",numTeams:2,selected:new Set(),drawn:null,drawing:false,presenca:new Set()};
+let state = {tab:"jogadores",players:[],loading:true,modal:null,filterPos:"Todos",numTeams:2,selected:new Set(),drawn:null,drawing:false};
 
-function playerScore(p){const w=POS_WEIGHT[p.position]||3;return Math.round((p.quality||0)*w/5*10)/10;}
 function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-function balancedDraw(players,n){
-  const teams=TEAM_THEMES.slice(0,n).map(t=>({...t,players:[],total:0}));
-  const byPos={};
-  // Adiciona ruido aleatorio pequeno para quebrar empates de nota
-  players.forEach(p=>{if(!byPos[p.position])byPos[p.position]=[];byPos[p.position].push({...p,_score:playerScore(p)+Math.random()*0.4});});
-  // Ordena por score (nota+posicao+ruido) decrescente dentro de cada posicao
-  Object.keys(byPos).forEach(pos=>{byPos[pos]=byPos[pos].sort((a,b)=>b._score-a._score);});
-  Object.keys(byPos).forEach(pos=>{
-    const group=byPos[pos];
-    for(let i=0;i<group.length;i++){
-      // Sempre coloca no time com menor total no momento
-      const ti=[...Array(n).keys()].sort((a,b)=>teams[a].total-teams[b].total)[0];
-      teams[ti].players.push(group[i]);
-      teams[ti].total=Math.round((teams[ti].total+group[i]._score)*10)/10;
+
+// ── BALANCED DRAW: defensores distribuídos igualmente, depois demais posições ──
+function snakeDraft(sorted, teams) {
+  let idx = 0, round = 0;
+  const n = teams.length;
+  while (idx < sorted.length) {
+    const dir = round % 2 === 0 ? 1 : -1;
+    const start = round % 2 === 0 ? 0 : n - 1;
+    for (let step = 0; step < n && idx < sorted.length; step++) {
+      const t = teams[start + step * dir];
+      t.players.push(sorted[idx]);
+      t.total += sorted[idx].quality || 0;
+      idx++;
     }
-  });
+    round++;
+  }
+}
+
+function balancedDraw(players, n) {
+  const teams = TEAM_THEMES.slice(0, n).map(t => ({ ...t, players: [], total: 0 }));
+
+  // Separar por posição
+  const byPos = {};
+  POSITIONS.forEach(pos => { byPos[pos] = []; });
+  players.forEach(p => { (byPos[p.position] || (byPos["Outros"] = byPos["Outros"]||[])).push(p); });
+
+  // Ordenar cada grupo por nota desc e embaralhar empates
+  function sortByQuality(arr) {
+    const g = {};
+    arr.forEach(p => { if (!g[p.quality]) g[p.quality] = []; g[p.quality].push(p); });
+    Object.keys(g).forEach(q => { g[q] = shuffle(g[q]); });
+    return [5,4,3,2,1].flatMap(q => g[q] || []);
+  }
+
+  // 1º — Distribuir Defensores em snake draft (garante igualdade)
+  const defensores = sortByQuality(byPos["Defesa"] || []);
+  snakeDraft(defensores, teams);
+
+  // 2º — Distribuir Goleiros em snake draft (equilibrado por nota)
+  const goleiros = sortByQuality(byPos["Goleiro"] || []);
+  snakeDraft(goleiros, teams);
+
+  // 3º — Restantes (Meio-campo + Atacante + outros) em snake draft
+  const resto = sortByQuality([
+    ...(byPos["Meio-campo"] || []),
+    ...(byPos["Atacante"] || []),
+    ...(byPos["Outros"] || [])
+  ]);
+  snakeDraft(resto, teams);
+
   return teams;
 }
+
 function posColor(pos){return POS_COLORS[pos]||{bg:"#888",glow:"#88888830"};}
 function stars(val){return[1,2,3,4,5].map(s=>`<span style="font-size:16px;color:${s<=(val||0)?'#FFD700':'#2a2a3a'};text-shadow:${s<=(val||0)?'0 0 8px #FFD70099':'none'}">★</span>`).join('');}
 
@@ -167,13 +254,13 @@ function modalHTML(){
 }
 
 function render(){
-  const {tab,players,loading,filterPos,numTeams,selected,drawn,drawing,presenca}=state;
-  const presencaCount=players.filter(p=>p.presenca===true).length;
+  const {tab,players,loading,filterPos,numTeams,selected,drawn,drawing}=state;
   if(loading){document.getElementById("app").innerHTML=`<div class="loading-screen"><div class="big-spinner"></div><div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:#555">CARREGANDO...</div></div>`;return;}
-  const selPlayers=(presenca.size>0?players.filter(p=>presenca.has(p.id)):players).filter(p=>selected.has(p.id));
+  const selPlayers=players.filter(p=>selected.has(p.id));
   const selAvg=selPlayers.length?(selPlayers.reduce((s,p)=>s+(p.quality||0),0)/selPlayers.length).toFixed(1):"0";
   const filteredPlayers=filterPos==="Todos"?players:players.filter(p=>p.position===filterPos);
   const pendingCount=players.filter(p=>!p.quality||p.quality===0).length;
+  const presenteCount=players.filter(p=>p.presente===true).length;
 
   let html=`<div class="header"><div class="header-inner">
     <div style="display:flex;align-items:flex-end;justify-content:space-between;padding-bottom:2px">
@@ -191,7 +278,7 @@ function render(){
     </div>
     <div class="tabs">
       <button class="tab-btn ${tab==='jogadores'?'active':''}" data-action="tab" data-tab="jogadores">👤 ELENCO${pendingCount>0?` <span style="background:#FFD700;color:#000;border-radius:10px;padding:1px 6px;font-size:10px">${pendingCount}</span>`:''}</button>
-      <button class="tab-btn ${tab==='presenca'?'active':''}" data-action="tab" data-tab="presenca">✅ PRESENÇA<span style="background:#2ECC71;color:#000;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:4px">${presencaCount}</span></button>
+      <button class="tab-btn ${tab==='presenca'?'active':''}" data-action="tab" data-tab="presenca">✅ PRESENÇA${presenteCount>0?` <span style="background:#2ECC71;color:#000;border-radius:10px;padding:1px 6px;font-size:10px">${presenteCount}</span>`:''}</button>
       <button class="tab-btn ${tab==='sorteio'?'active':''}" data-action="tab" data-tab="sorteio">⚽ SORTEAR</button>
     </div>
   </div></div><div class="content">`;
@@ -203,46 +290,73 @@ function render(){
   }
 
   if(tab==="presenca"){
-    const confirmedPlayers=players.filter(p=>p.presenca===true);
-    const pendingPlayers=players.filter(p=>!p.presenca);
-    html+=`<div class="config-card">
-      <div class="config-title">✅ CONFIRMADOS HOJE <span style="font-size:16px;color:#2ECC71">${confirmedPlayers.length}</span></div>
-      <div style="display:flex;gap:8px;margin-bottom:14px">
-        <button class="fbtn" data-action="presenca-all" style="--c:#2ECC71">✅ Marcar todos</button>
-        <button class="fbtn" data-action="presenca-none" style="--c:#f66">❌ Limpar</button>
-      </div>
-      ${confirmedPlayers.length===0?'<div style="color:#444;font-size:13px;text-align:center;padding:10px">Ninguém confirmado ainda</div>':confirmedPlayers.map(p=>{const c=posColor(p.position);return `<div class="player-card" style="--col:${c.bg};--glow:${c.glow};--border:${c.bg};background:color-mix(in srgb,${c.bg} 10%,transparent);margin-bottom:8px;cursor:pointer" data-action="toggle-presenca" data-id="${p.id}">
-        <div style="width:20px;height:20px;border-radius:50%;background:#2ECC71;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;color:#fff">✓</div>
-        <div class="player-avatar" style="--col:${c.bg};--glow:${c.glow}">${p.name.charAt(0)}</div>
-        <div style="flex:1"><span class="player-name">${p.name}</span><span class="pos-badge" style="background:${c.bg};margin-left:6px">${p.position}</span></div>
-      </div>`;}).join('')}
+    const presentes=players.filter(p=>p.presente===true).sort((a,b)=>(a.confirmedAt||0)-(b.confirmedAt||0));
+    const ausentes=players.filter(p=>!p.presente);
+    html+=`<div style="background:#2ECC7110;border:1px solid #2ECC7130;border-radius:14px;padding:14px 16px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between">
+      <div><div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#2ECC71;line-height:1">${presentes.length}</div><div style="font-size:11px;color:#2ECC71bb;font-weight:700;text-transform:uppercase;letter-spacing:1px">Confirmados</div></div>
+      <div style="text-align:right"><div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#ff6666;line-height:1">${ausentes.length}</div><div style="font-size:11px;color:#ff6666bb;font-weight:700;text-transform:uppercase;letter-spacing:1px">Pendentes</div></div>
     </div>`;
-    if(pendingPlayers.length>0){
-      html+=`<div class="section-label" style="margin-bottom:10px">NÃO CONFIRMADOS</div>`;
-      pendingPlayers.forEach(p=>{const c=posColor(p.position);html+=`<div class="player-card" style="--col:${c.bg};--glow:${c.glow};--border:#ffffff15;cursor:pointer;opacity:0.5" data-action="toggle-presenca" data-id="${p.id}">
-        <div style="width:20px;height:20px;border-radius:50%;border:2px solid #444;flex-shrink:0"></div>
-        <div class="player-avatar" style="--col:${c.bg};--glow:${c.glow}">${p.name.charAt(0)}</div>
-        <div style="flex:1"><span class="player-name">${p.name}</span><span class="pos-badge" style="background:${c.bg};margin-left:6px">${p.position}</span></div>
-      </div>`;});
+
+    if(presentes.length>0){
+      html+=`<div style="font-size:11px;font-weight:700;color:#2ECC71;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">✅ Confirmados (${presentes.length})</div>`;
+      presentes.forEach(p=>{
+        const c=posColor(p.position);
+        html+=`<div style="background:linear-gradient(135deg,#162e1a,#1a2e1a);border:1.5px solid #2ECC7140;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px;margin-bottom:8px">
+          <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,${c.bg},${c.bg}88);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#fff;font-family:'Bebas Neue',sans-serif;box-shadow:0 0 10px #2ECC7140">${p.name.charAt(0)}</div>
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+              <span style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:#fff">${p.name}</span>
+              <span style="background:${c.bg};color:#fff;border-radius:5px;padding:2px 7px;font-size:9px;font-weight:700;text-transform:uppercase">${p.position}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
+              ${p.quality>0?`<div>${[1,2,3,4,5].map(s=>`<span style="font-size:14px;color:${s<=p.quality?'#FFD700':'#2a2a3a'}">★</span>`).join('')}</div>`:'<span style="font-size:9px;background:#FFD70020;color:#FFD700;border-radius:4px;padding:2px 8px;font-weight:700">⏳ SEM NOTA</span>'}
+            </div>
+          </div>
+          <button style="background:#ff444415;border:1px solid #ff444430;border-radius:7px;color:#ff6666;cursor:pointer;font-size:11px;padding:5px 9px;font-weight:700;font-family:'Syne',sans-serif;-webkit-appearance:none;white-space:nowrap" data-action="cancelar-presenca" data-id="${p.id}">✕ RETIRAR</button>
+        </div>`;
+      });
+    }
+
+    if(ausentes.length>0){
+      html+=`<div style="font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:1px;margin:16px 0 10px">⏳ Ainda não confirmaram (${ausentes.length})</div>`;
+      ausentes.forEach(p=>{
+        const c=posColor(p.position);
+        html+=`<div style="background:#ffffff06;border:1.5px solid #ffffff10;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px;margin-bottom:8px;opacity:0.6">
+          <div style="width:38px;height:38px;border-radius:50%;background:#333;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#666;font-family:'Bebas Neue',sans-serif">${p.name.charAt(0)}</div>
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:7px">
+              <span style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:#666">${p.name}</span>
+              <span style="background:#333;color:#666;border-radius:5px;padding:2px 7px;font-size:9px;font-weight:700;text-transform:uppercase">${p.position}</span>
+            </div>
+          </div>
+          <button style="background:#ffffff08;border:1px solid #ffffff15;border-radius:7px;color:#aaa;cursor:pointer;font-size:11px;padding:5px 9px;font-weight:700;font-family:'Syne',sans-serif;-webkit-appearance:none" data-action="marcar-presente" data-id="${p.id}">+ MARCAR</button>
+        </div>`;
+      });
+    }
+
+    if(players.length===0){
+      html+=`<div class="empty"><div style="font-size:40px;margin-bottom:12px">📋</div><div style="font-weight:700;font-size:15px">Nenhum jogador cadastrado</div></div>`;
     }
   }
 
   if(tab==="sorteio"){
-    const sorteioPl2=presenca.size>0?players.filter(p=>presenca.has(p.id)):players;
-    const canDraw=sorteioPl2.filter(p=>selected.has(p.id)&&p.quality>0).length>=numTeams;
+    const presentes=players.filter(p=>p.presente===true);
+    const presentesComNota=presentes.filter(p=>p.quality>0);
+    const canDraw=presentesComNota.length>=numTeams;
+    const base=Math.floor(presentesComNota.length/numTeams);
+    const extras=presentesComNota.length%numTeams;
+    const sizeInfo=extras>0?`${base+1}x${extras} + ${base}x${numTeams-extras}`:`${base} por time`;
     html+=`<div class="config-card"><div class="config-title">⚙️ CONFIGURAR SORTEIO</div>
       <div class="section-label">Número de times</div>
       <div class="num-btns">${[2,3,4].map(n=>`<button class="num-btn ${numTeams===n?'active':''}" data-action="numteams" data-n="${n}">${n}</button>`).join('')}</div>
-      <div class="selection-info">
-        <div><span style="font-size:13px;font-weight:700;color:#00C2FF">${selPlayers.length} selecionados</span><span style="font-size:11px;color:#555;margin-left:6px">(mín. ${numTeams} com nota)</span></div>
-        <span style="font-size:11px;color:#aaa">média <span style="color:#FFD700">★</span> ${selAvg}</span>
+      <div style="display:flex;align-items:center;justify-content:space-between;background:#2ECC7110;border:1px solid #2ECC7130;border-radius:10px;padding:10px 14px;margin-bottom:10px">
+        <div><span style="font-size:13px;font-weight:700;color:#2ECC71">${presentes.length} confirmados</span><span style="font-size:11px;color:#555;margin-left:6px">(mín. ${numTeams} com nota)</span></div>
+        <span style="font-size:11px;color:#aaa">${presentesComNota.length>0?sizeInfo:presentesComNota.length+' com nota'}</span>
       </div>
-      <div style="display:flex;gap:8px"><button class="fbtn" data-action="selall">✅ Todos</button><button class="fbtn" data-action="selnone">☐ Nenhum</button></div>
     </div>
-    <div class="section-label" style="margin-bottom:10px">Toque para incluir/excluir</div>`;
-    const sorteioPl=presenca.size>0?players.filter(p=>presenca.has(p.id)):players;
-    sorteioPl.forEach(p=>{html+=playerCardHTML(p,true);});
-    html+=`<button class="draw-btn ${canDraw?'ready':'disabled'}" data-action="draw" ${!canDraw?'disabled':''}>${drawing?`<div class="spinner"></div> SORTEANDO...`:'⚽ SORTEAR TIMES EQUILIBRADOS'}</button>`;
+    ${presentes.length===0?`<div class="empty"><div style="font-size:40px;margin-bottom:12px">📋</div><div style="font-weight:700;font-size:15px">Nenhum jogador confirmou presença</div><div style="font-size:13px;margin-top:8px;color:#555">Compartilhe o link para os jogadores confirmarem</div></div>`:''}
+    ${presentes.length>0?`<div class="section-label" style="margin-bottom:10px">Jogadores confirmados</div>${presentes.map(p=>playerCardHTML(p,false)).join('')}`:''}
+    <button class="draw-btn ${canDraw?'ready':'disabled'}" data-action="draw" ${!canDraw?'disabled':''}>${drawing?`<div class="spinner"></div> SORTEANDO...`:'⚽ SORTEAR TIMES EQUILIBRADOS'}</button>`;
 
     if(drawn&&!drawing){
       const maxPts=Math.max(...drawn.map(t=>t.total),1);
@@ -289,22 +403,17 @@ document.addEventListener("click",e=>{
   else if(action==="selall"){state.selected=new Set(state.players.map(p=>p.id));render();}
   else if(action==="selnone"){state.selected=new Set();render();}
   else if(action==="draw"){
-    const pool=state.players.filter(p=>state.selected.has(p.id)&&p.quality>0);
+    const pool=state.players.filter(p=>p.presente===true&&p.quality>0);
     if(pool.length<state.numTeams)return;
     state.drawing=true;render();
     setTimeout(()=>{state.drawn=balancedDraw(pool,state.numTeams);state.drawing=false;render();},900);
   }
-  else if(action==="toggle-presenca"){
-    const p=state.players.find(x=>x.id===id);
-    if(p){playersRef.child(id).update({presenca:!p.presenca});}
+  else if(action==="marcar-presente"){
+    playersRef.child(id).update({presente:true, confirmedAt:Date.now()});
   }
-  else if(action==="presenca-all"){
-    const updates={};state.players.forEach(p=>{updates[p.id+'/presenca']=true;});
-    playersRef.parent?db.ref('jogadores').update(updates):playersRef.update(updates);
-  }
-  else if(action==="presenca-none"){
-    const updates={};state.players.forEach(p=>{updates[p.id+'/presenca']=false;});
-    playersRef.update(updates);
+  else if(action==="cancelar-presenca"){
+    if(confirm("Retirar presença deste jogador?"))
+      playersRef.child(id).update({presente:false, confirmedAt:null});
   }
   else if(action==="share"){
     const url=location.href.replace("index.html","")+"entrar.html";
@@ -314,13 +423,76 @@ document.addEventListener("click",e=>{
   if(el.id==="modal-overlay"){state.modal=null;render();}
 });
 
-// REALTIME LISTENER
+// ── LOGIN LOGIC ───────────────────────────────────────────────────────────────
+const ADM_PASSWORD = "baba123";
+let selectedLoginPos = null;
+
+function showLogin(){
+  document.getElementById("login-screen").style.display="flex";
+  document.getElementById("app").style.display="none";
+}
+function showApp(){
+  document.getElementById("login-screen").style.display="none";
+  document.getElementById("success-screen").style.display="none";
+  document.getElementById("app").style.display="block";
+}
+function showSuccess(name){
+  document.getElementById("login-screen").style.display="none";
+  document.getElementById("success-screen").style.display="flex";
+  document.getElementById("success-player-name").textContent="Bem-vindo, "+name+"! 👋";
+}
+
+document.getElementById("pos-grid-login").addEventListener("click",e=>{
+  const card=e.target.closest("[data-pos]");if(!card)return;
+  document.querySelectorAll("#pos-grid-login [data-pos]").forEach(c=>{
+    c.style.borderColor="#ffffff12";c.style.background="#ffffff07";
+    c.querySelector("div:last-child").style.color="#aaa";
+  });
+  const posColors={"Goleiro":"#FF6B35","Defesa":"#00C2FF","Meio-campo":"#9B59B6","Atacante":"#2ECC71"};
+  const c=posColors[card.dataset.pos]||"#00C2FF";
+  card.style.borderColor=c;card.style.background=c+"30";
+  card.querySelector("div:last-child").style.color=c;
+  selectedLoginPos=card.dataset.pos;
+});
+
+document.getElementById("login-player-btn").addEventListener("click",async()=>{
+  const name=document.getElementById("login-name").value.trim();
+  if(!name||!selectedLoginPos){alert("Preencha seu nome e posição!");return;}
+  const btn=document.getElementById("login-player-btn");
+  btn.textContent="VERIFICANDO...";btn.disabled=true;
+  const snap=await playersRef.once("value");
+  const data=snap.val()||{};
+  const existing=Object.entries(data).find(([id,p])=>p.name.toLowerCase()===name.toLowerCase());
+  if(!existing){
+    document.getElementById("login-error").style.display="block";
+    btn.textContent="CONFIRMAR PRESENÇA";btn.disabled=false;
+    return;
+  }
+  document.getElementById("login-error").style.display="none";
+  await playersRef.child(existing[0]).update({position:selectedLoginPos,presente:true,confirmedAt:Date.now()});
+  showSuccess(existing[1].name);
+});
+
+document.getElementById("login-adm-btn").addEventListener("click",()=>{
+  const pw=document.getElementById("adm-password").value;
+  if(pw===ADM_PASSWORD){
+    sessionStorage.setItem("adm","1");
+    showApp();
+  } else {
+    document.getElementById("adm-error").style.display="block";
+  }
+});
+
+if(sessionStorage.getItem("adm")==="1"){
+  showApp();
+} else {
+  showLogin();
+}
+
 playersRef.on("value",snapshot=>{
   const data=snapshot.val()||{};
   state.players=Object.entries(data).map(([id,p])=>({id,...p})).sort((a,b)=>a.name.localeCompare(b.name));
   state.players.forEach(p=>state.selected.add(p.id));
-  // Sync presenca Set with Firebase data
-  state.presenca=new Set(state.players.filter(p=>p.presenca===true).map(p=>p.id));
   state.loading=false;
   render();
 });
