@@ -5,109 +5,590 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
   <meta name="theme-color" content="#0d1b3e"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <title>Arena PIB — Confirmar Presença ⚽</title>
-  <link rel="manifest" href="manifest.json"/>
+  <title>Arena PIB — Confirmar Presença</title>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
   <style>
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-    body{background:radial-gradient(ellipse at 30% 0%,#0d1b3e,#080c1a 60%);min-height:100vh;color:#fff;font-family:'Syne',sans-serif;display:flex;flex-direction:column;align-items:center;padding:40px 20px 60px}
+    body{background:radial-gradient(ellipse at 30% 0%,#0d1b3e,#080c1a 60%);min-height:100vh;color:#fff;font-family:'Syne',sans-serif;display:flex;flex-direction:column;align-items:center;padding:36px 20px 80px}
+
     @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
     @keyframes pulse{0%,100%{box-shadow:0 0 0 0 #00C2FF44}50%{box-shadow:0 0 0 12px #00C2FF00}}
-    .fu{animation:fadeUp 0.5s ease forwards}
-    .fu2{animation:fadeUp 0.5s 0.1s ease both}
-    .fu3{animation:fadeUp 0.5s 0.2s ease both}
+    @keyframes shimmer{0%{background-position:-400% center}100%{background-position:400% center}}
+    @keyframes trophyBounce{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-5px) rotate(3deg)}}
+    @keyframes crownGlow{0%,100%{filter:drop-shadow(0 0 6px #FFD70099)}50%{filter:drop-shadow(0 0 16px #FFD700cc)}}
+    @keyframes confettiFall{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(60px) rotate(720deg);opacity:0}}
+    @keyframes pulsered{0%,100%{box-shadow:0 0 0 0 #ff444444}50%{box-shadow:0 0 0 10px #ff444400}}
+    @keyframes lockShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+    @keyframes countPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+
+    .fu {animation:fadeUp 0.5s ease forwards}
+    .fu2{animation:fadeUp 0.5s 0.08s ease both}
+    .fu3{animation:fadeUp 0.5s 0.16s ease both}
+    .fu4{animation:fadeUp 0.5s 0.24s ease both}
+
+    /* ── CHAMPION BANNER ── */
+    .champ-banner{width:100%;max-width:420px;margin-bottom:28px;border-radius:20px;overflow:hidden;border:2px solid #FFD70050;box-shadow:0 10px 50px #FFD70018,0 4px 20px #00000060;position:relative}
+    .champ-banner-header{background:linear-gradient(135deg,#1a1408,#2a1e00);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #FFD70025}
+    .champ-banner-label{font-size:9px;font-weight:700;color:#FFD70099;letter-spacing:2.5px;text-transform:uppercase}
+    .champ-trophy{font-size:20px;animation:trophyBounce 2.5s ease-in-out infinite}
+    .champ-photo-wrap{position:relative;width:100%;aspect-ratio:16/9;background:linear-gradient(145deg,#0e0e1a,#141420);overflow:hidden}
+    .champ-photo-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+    .champ-photo-wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,transparent 55%,#1a1408ee 100%);pointer-events:none}
+    .champ-photo-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px}
+    .champ-photo-empty .icon{font-size:36px;animation:crownGlow 2s ease-in-out infinite;opacity:0.5}
+    .champ-photo-empty .txt{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:#444}
+    .champ-info{background:linear-gradient(135deg,#1a1408,#211900);padding:12px 16px 14px;position:relative}
+    .champ-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;line-height:1;background:linear-gradient(90deg,#FFD700 30%,#FFA500 70%,#FFD700);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3s linear infinite}
+    .champ-date{font-size:11px;color:#666;margin-top:4px;letter-spacing:0.5px}
+    .champ-badge{position:absolute;top:12px;right:14px;background:linear-gradient(135deg,#FFD70020,#FFD70010);border:1px solid #FFD70040;border-radius:6px;font-size:9px;font-weight:700;color:#FFD700aa;letter-spacing:1px;padding:4px 8px;text-transform:uppercase}
+
+    /* ── CAPACITY BAR ── */
+    .capacity-wrap{width:100%;max-width:420px;margin-bottom:20px;background:linear-gradient(145deg,#0f0f1e,#12122a);border:1px solid #ffffff0f;border-radius:16px;padding:14px 18px}
+    .capacity-bar-track{height:10px;background:#ffffff0d;border-radius:6px;overflow:hidden;margin:8px 0 6px}
+    .capacity-bar-fill{height:100%;border-radius:6px;transition:width 0.7s cubic-bezier(.22,1,.36,1)}
+
+    /* ── LISTA FECHADA ── */
+    .lista-fechada-card{width:100%;max-width:420px;background:linear-gradient(145deg,#1e0808,#150404);border:2px solid #ff444455;border-radius:22px;padding:36px 24px;text-align:center;box-shadow:0 12px 50px #ff444420;animation:pulsered 2s infinite}
+    .lock-icon{font-size:56px;display:block;margin-bottom:16px;animation:lockShake 0.5s ease 0.5s 1}
+
+    /* ── FORM CARD ── */
     .card{background:linear-gradient(145deg,#1a1a2e,#131325);border:1px solid #ffffff14;border-radius:22px;padding:28px 24px;width:100%;max-width:420px;box-shadow:0 20px 60px #00000088}
+    .section-label{font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px}
     .name-input{width:100%;background:#ffffff0d;border:1.5px solid #ffffff18;border-radius:12px;padding:14px 16px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;outline:none;transition:border-color 0.2s;margin-bottom:20px;-webkit-appearance:none}
     .name-input::placeholder{color:#333;font-size:18px}
     .name-input:focus{border-color:#00C2FF88}
-    .section-label{font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px}
     .pos-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
     .pos-card{padding:16px 12px;border-radius:14px;border:2px solid #ffffff12;background:#ffffff07;cursor:pointer;transition:all 0.2s;text-align:center}
-    .pos-card.active{border-color:var(--c);background:color-mix(in srgb,var(--c) 18%,transparent);box-shadow:0 4px 20px color-mix(in srgb,var(--c) 30%,transparent)}
+    .pos-card.active{border-color:var(--c);background:color-mix(in srgb,var(--c) 18%,transparent)}
     .pos-icon{font-size:28px;display:block;margin-bottom:6px}
     .pos-name{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:1px;color:#aaa}
     .pos-card.active .pos-name{color:var(--c)}
-    .submit-btn{width:100%;padding:18px;border-radius:14px;border:none;background:linear-gradient(135deg,#00C2FF,#0055ff);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;cursor:pointer;box-shadow:0 6px 30px #00C2FF44;animation:pulse 2s infinite;transition:opacity 0.2s;-webkit-appearance:none}
-    .submit-btn:disabled{background:#ffffff12;color:#444;box-shadow:none;animation:none;cursor:not-allowed}
     .error-box{display:none;background:#ff444415;border:1px solid #ff444440;border-radius:10px;padding:12px 14px;font-size:12px;color:#ff6666;margin-bottom:14px}
-    .success{display:none;text-align:center;padding:20px 0}
+    .submit-btn{width:100%;padding:18px;border-radius:14px;border:none;background:linear-gradient(135deg,#00C2FF,#0055ff);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;cursor:pointer;box-shadow:0 6px 30px #00C2FF44;animation:pulse 2s infinite;-webkit-appearance:none}
+    .submit-btn:disabled{background:#ffffff12;color:#444;box-shadow:none;animation:none;cursor:not-allowed}
+
+    /* ── LISTA DE CONFIRMADOS ── */
     .player-list{margin-top:28px;width:100%;max-width:420px}
     .list-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#555;text-align:center;margin-bottom:14px}
     .player-item{display:flex;align-items:center;gap:12px;background:#ffffff08;border:1px solid #ffffff0f;border-radius:12px;padding:11px 14px;margin-bottom:8px}
     .player-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:16px;color:#fff;flex-shrink:0}
+
+    /* ── SUCCESS ── */
+    .success-confetti{position:relative;overflow:hidden}
+    .confetti-piece{position:absolute;width:8px;height:8px;border-radius:2px;animation:confettiFall 1.2s ease-in forwards}
+
+    /* ── ADM PANEL ── */
+    .adm-toggle{margin-top:40px;background:none;border:1px solid #ffffff10;border-radius:10px;padding:8px 18px;color:#333;font-family:'Syne',sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;transition:all 0.2s}
+    .adm-toggle:hover{border-color:#ffffff25;color:#555}
+    .adm-panel{display:none;width:100%;max-width:420px;margin-top:14px;background:linear-gradient(145deg,#0e0e1e,#111120);border:1px solid #FFD70025;border-radius:20px;padding:22px 20px}
+    .adm-panel.open{display:block;animation:fadeUp 0.3s ease}
+    .adm-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:#FFD70088;margin-bottom:16px;text-align:center}
+    .adm-field{margin-bottom:14px}
+    .adm-label{font-size:10px;font-weight:700;color:#444;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:6px}
+    .adm-input{width:100%;background:#ffffff0d;border:1.5px solid #ffffff15;border-radius:10px;padding:12px 14px;color:#fff;font-family:'Syne',sans-serif;font-size:13px;outline:none;transition:border-color 0.2s;-webkit-appearance:none}
+    .adm-input:focus{border-color:#FFD70055}
+    .adm-input::placeholder{color:#333}
+    .photo-upload-area{width:100%;border:2px dashed #FFD70025;border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:all 0.2s;background:#FFD70008;position:relative;overflow:hidden}
+    .photo-upload-area:hover{border-color:#FFD70055;background:#FFD70012}
+    .photo-upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+    .photo-preview{width:100%;aspect-ratio:16/9;border-radius:10px;object-fit:cover;display:none;margin-top:10px;border:1px solid #FFD70030}
+    .photo-preview.visible{display:block}
+    .upload-icon{font-size:28px;margin-bottom:6px;display:block}
+    .upload-hint{font-size:11px;color:#444;letter-spacing:0.5px}
+    .adm-save-btn{width:100%;padding:14px;border-radius:12px;border:none;margin-top:4px;background:linear-gradient(135deg,#FFD700,#FFA500);color:#000;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;transition:opacity 0.2s}
+    .adm-save-btn:hover{opacity:0.88}
+    .adm-clear-btn{width:100%;padding:10px;border-radius:10px;border:1px solid #ff444430;background:transparent;color:#ff4444aa;font-family:'Syne',sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;margin-top:8px;transition:all 0.2s}
+    .adm-clear-btn:hover{background:#ff444415;border-color:#ff444460}
+    .adm-msg{font-size:11px;text-align:center;margin-top:10px;min-height:16px;transition:color 0.3s}
+
+    /* ── COUNTDOWN ── */
+    .countdown-wrap{width:100%;max-width:420px;margin-bottom:28px;border-radius:20px;overflow:hidden;border:1px solid #00C2FF22;box-shadow:0 8px 40px #00C2FF0f,0 2px 12px #00000050;background:linear-gradient(145deg,#0a0f22,#0d1228)}
+    .countdown-header{padding:12px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff08}
+    .countdown-label{font-size:9px;font-weight:700;color:#00C2FF88;letter-spacing:2.5px;text-transform:uppercase}
+    .countdown-ball{font-size:18px;animation:trophyBounce 3s ease-in-out infinite}
+    .countdown-body{padding:18px 16px 20px;text-align:center}
+    .countdown-date-str{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:#ffffff30;margin-bottom:14px}
+    .countdown-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:6px}
+    .cd-block{background:#ffffff06;border:1px solid #ffffff0d;border-radius:12px;padding:10px 4px 8px}
+    .cd-num{font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:1;color:#fff;display:block}
+    .cd-lbl{font-size:9px;font-weight:700;color:#555;letter-spacing:1.5px;text-transform:uppercase;margin-top:4px}
+    .countdown-happening{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;background:linear-gradient(90deg,#00C2FF,#2ECC71);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:countPulse 1.5s ease-in-out infinite;padding:10px 0 4px}
+    .countdown-soon{font-size:11px;color:#00C2FF66;letter-spacing:1px;margin-top:6px}
+
+    /* ── MUSIC PLAYER ── */
+    @keyframes equalizer{0%,100%{height:4px}25%{height:12px}50%{height:7px}75%{height:14px}}
+    @keyframes slideUp{from{transform:translateY(80px) translateX(-50%);opacity:0}to{transform:translateY(0) translateX(-50%);opacity:1}}
+    @keyframes spin360{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    @keyframes musicPop{0%{transform:translateX(-50%) scale(0.8);opacity:0}60%{transform:translateX(-50%) scale(1.05)}100%{transform:translateX(-50%) scale(1);opacity:1}}
+    @keyframes glowPulse{0%,100%{box-shadow:0 0 0 0 #00C2FF33}50%{box-shadow:0 0 0 8px #00C2FF00}}
+
+    .music-player{
+      position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+      background:linear-gradient(135deg,#0d0d20ee,#111130ee);
+      border:1px solid #ffffff18;border-radius:50px;
+      padding:10px 18px;display:flex;align-items:center;gap:12px;
+      box-shadow:0 8px 32px #00000088,0 0 0 1px #ffffff08;
+      backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      z-index:999;min-width:220px;max-width:340px;
+      animation:musicPop 0.5s cubic-bezier(.22,1,.36,1);
+      cursor:pointer;user-select:none;
+      transition:opacity 0.3s;
+    }
+    .music-player:hover{opacity:0.95}
+    .music-disc{
+      width:36px;height:36px;border-radius:50%;
+      background:linear-gradient(135deg,#00C2FF,#9B59B6);
+      display:flex;align-items:center;justify-content:center;
+      flex-shrink:0;font-size:16px;
+      box-shadow:0 0 12px #00C2FF44;
+      transition:box-shadow 0.3s;
+    }
+    .music-disc.playing{
+      animation:spin360 3s linear infinite;
+      box-shadow:0 0 20px #00C2FF66;
+    }
+    .music-info{flex:1;min-width:0}
+    .music-title{
+      font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;
+      color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;
+    }
+    .music-sub{font-size:10px;color:#555;letter-spacing:0.5px;margin-top:1px}
+    .music-eq{display:flex;align-items:flex-end;gap:2px;height:16px;flex-shrink:0}
+    .music-eq span{
+      display:inline-block;width:3px;background:#00C2FF;border-radius:2px;height:4px;
+    }
+    .music-eq.playing span:nth-child(1){animation:equalizer 0.8s ease-in-out infinite}
+    .music-eq.playing span:nth-child(2){animation:equalizer 0.8s 0.15s ease-in-out infinite}
+    .music-eq.playing span:nth-child(3){animation:equalizer 0.8s 0.3s ease-in-out infinite}
+    .music-eq.playing span:nth-child(4){animation:equalizer 0.8s 0.1s ease-in-out infinite}
+    .music-toggle{
+      width:28px;height:28px;border-radius:50%;border:1px solid #ffffff20;
+      background:#ffffff0d;display:flex;align-items:center;justify-content:center;
+      flex-shrink:0;font-size:12px;transition:all 0.2s;cursor:pointer;
+    }
+    .music-toggle:hover{background:#ffffff18}
+
+    /* Badge "padrão" no player */
+    .music-default-badge{
+      position:absolute;top:-8px;left:50%;transform:translateX(-50%);
+      background:linear-gradient(90deg,#00C2FF,#9B59B6);
+      border-radius:10px;padding:2px 8px;font-size:9px;font-weight:700;
+      color:#fff;letter-spacing:1px;white-space:nowrap;
+      box-shadow:0 2px 8px #00C2FF44;
+    }
+
+    /* Botão "Iniciar Música" (primeiro toque por política do browser) */
+    .music-start-overlay{
+      position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+      background:linear-gradient(135deg,#00C2FF,#0055ff);
+      border:none;border-radius:50px;
+      padding:14px 28px;display:flex;align-items:center;gap:10px;
+      box-shadow:0 8px 32px #00C2FF55;
+      z-index:1000;cursor:pointer;user-select:none;
+      font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:#fff;
+      animation:musicPop 0.5s cubic-bezier(.22,1,.36,1),glowPulse 2s infinite;
+      white-space:nowrap;
+    }
+
+    /* ADM música */
+    .adm-divider{border:none;border-top:1px solid #ffffff0d;margin:18px 0}
+
+    /* ADM: música padrão info */
+    .default-music-info{
+      background:#00C2FF0d;border:1px solid #00C2FF22;border-radius:10px;
+      padding:10px 12px;font-size:11px;color:#00C2FF88;line-height:1.7;margin-bottom:14px;
+    }
+    .default-music-info strong{color:#00C2FF;display:block;margin-bottom:2px}
   </style>
 </head>
 <body>
-<span style="font-size:56px;margin-bottom:10px;display:block;text-align:center" class="fu">⚽</span>
-<div style="font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:3px;background:linear-gradient(90deg,#fff 40%,#00C2FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;text-align:center" class="fu">ARENA PIB</div>
-<div style="font-size:13px;color:#666;letter-spacing:1px;text-align:center;margin-bottom:36px" class="fu2">Confirme sua presença no baba</div>
 
-<div class="card fu3">
-  <div id="form-area">
-    <div class="section-label">Seu nome</div>
-    <input class="name-input" id="inp-name" placeholder="Como te chamam?" maxlength="30" autocomplete="off" autocorrect="off" spellcheck="false"/>
-    <div class="section-label">Sua posição</div>
-    <div class="pos-grid" id="pos-grid">
-      <div class="pos-card" data-pos="Goleiro" style="--c:#FF6B35"><span class="pos-icon">🧤</span><div class="pos-name">Goleiro</div></div>
-      <div class="pos-card" data-pos="Defesa" style="--c:#00C2FF"><span class="pos-icon">🛡️</span><div class="pos-name">Defesa</div></div>
-      <div class="pos-card" data-pos="Meio-campo" style="--c:#9B59B6"><span class="pos-icon">⚙️</span><div class="pos-name">Meio-campo</div></div>
-      <div class="pos-card" data-pos="Atacante" style="--c:#2ECC71"><span class="pos-icon">🎯</span><div class="pos-name">Atacante</div></div>
-    </div>
-    <div class="error-box" id="error-box">🚫 Nome não encontrado. Verifique com o ADM.</div>
-    <button class="submit-btn" id="submit-btn" disabled>CONFIRMAR PRESENÇA ⚽</button>
-  </div>
-  <div class="success" id="success-area">
-    <div style="font-size:64px;margin-bottom:16px">🎉</div>
-    <div id="success-name" style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:#2ECC71;margin-bottom:8px"></div>
-    <div style="font-size:14px;color:#888;line-height:1.6">Você está na lista do baba!</div>
-    <div style="background:#ffffff08;border-radius:12px;padding:14px 20px;font-size:12px;color:#666;line-height:1.6;max-width:320px;margin-top:16px">
-      <strong style="color:#FFD700;display:block;margin-bottom:4px">⏳ Aguardando nota</strong>
-      O ADM vai avaliar sua habilidade antes do sorteio.
-    </div>
-  </div>
-</div>
+  <span style="font-size:52px;margin-bottom:8px;display:block;text-align:center" class="fu">⚽</span>
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:3px;background:linear-gradient(90deg,#fff 40%,#00C2FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;text-align:center" class="fu">ARENA PIB</div>
+  <div style="font-size:13px;color:#666;letter-spacing:1px;text-align:center;margin-bottom:12px" class="fu2">Confirme sua presença no baba</div>
 
-<div class="player-list">
-  <div class="list-title">QUEM JÁ CONFIRMOU</div>
-  <div id="player-list-items"></div>
-</div>
+  <div style="font-size:11px;color:#ffffff25;text-align:center;margin-bottom:28px;font-style:italic;letter-spacing:0.5px;line-height:1.6;max-width:300px" class="fu2">
+    "Este é o dia que o Senhor fez;<br>alegremo-nos e nos regozijemos nele."<br>
+    <span style="font-style:normal;font-size:10px;letter-spacing:1.5px;color:#ffffff15">— Salmos 118:24</span>
+  </div>
+
+  <!-- CONTAGEM REGRESSIVA -->
+  <div class="countdown-wrap fu2" id="countdown-wrap">
+    <div class="countdown-header">
+      <div class="countdown-label">⏱ Próximo baba</div>
+      <div class="countdown-ball">⚽</div>
+    </div>
+    <div class="countdown-body">
+      <div class="countdown-date-str" id="cd-date-str"></div>
+      <div id="cd-normal">
+        <div class="countdown-grid">
+          <div class="cd-block"><span class="cd-num" id="cd-d">00</span><div class="cd-lbl">Dias</div></div>
+          <div class="cd-block"><span class="cd-num" id="cd-h">00</span><div class="cd-lbl">Horas</div></div>
+          <div class="cd-block"><span class="cd-num" id="cd-m">00</span><div class="cd-lbl">Min</div></div>
+          <div class="cd-block"><span class="cd-num" id="cd-s">00</span><div class="cd-lbl">Seg</div></div>
+        </div>
+      </div>
+      <div id="cd-happening" style="display:none">
+        <div class="countdown-happening">🔥 BABA ACONTECENDO AGORA!</div>
+        <div class="countdown-soon">Corre que já começou!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CAMPEÃO -->
+  <div id="champ-section" style="width:100%;max-width:420px;margin-bottom:28px;display:none" class="fu2">
+    <div class="champ-banner">
+      <div class="champ-banner-header">
+        <div class="champ-banner-label">🏆 Campeão do último baba</div>
+        <div class="champ-trophy">🏆</div>
+      </div>
+      <div class="champ-photo-wrap" id="champ-photo-wrap"></div>
+      <div class="champ-info">
+        <div class="champ-badge">CAMPEÃO</div>
+        <div class="champ-name" id="champ-name-display">—</div>
+        <div class="champ-date" id="champ-date-display"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BARRA DE CAPACIDADE (sempre visível) -->
+  <div class="capacity-wrap fu2" id="capacity-section">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <span id="capacity-label" style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#2ECC71">Vagas disponíveis</span>
+      <span id="capacity-count" style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:#2ECC71">0/28</span>
+    </div>
+    <div class="capacity-bar-track">
+      <div class="capacity-bar-fill" id="capacity-bar" style="width:0%;background:#2ECC71"></div>
+    </div>
+    <div id="capacity-sub" style="font-size:11px;color:#555;text-align:center"></div>
+  </div>
+
+  <!-- LISTA FECHADA -->
+  <div class="lista-fechada-card fu3" id="lista-fechada-card" style="display:none">
+    <span class="lock-icon">🔒</span>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:3px;color:#ff6666;margin-bottom:10px">LISTA FECHADA</div>
+    <div style="font-size:14px;color:#aa4444;line-height:1.7;margin-bottom:20px">
+      O baba já está com <strong style="color:#ff6666">28 jogadores</strong> confirmados.<br>Não há mais vagas no momento!
+    </div>
+    <div style="background:#ff444415;border:1px solid #ff444435;border-radius:14px;padding:16px 18px;font-size:12px;color:#ff8888;line-height:1.8">
+      💡 Fique de olho no grupo — se alguém desistir, uma vaga abre automaticamente e você poderá confirmar!
+    </div>
+  </div>
+
+  <!-- FORMULÁRIO -->
+  <div class="card fu3" id="form-card">
+    <div id="form-area">
+      <div class="section-label">Seu nome</div>
+      <input class="name-input" id="inp-name" placeholder="Como te chamam?" maxlength="30" autocomplete="off" autocorrect="off" spellcheck="false"/>
+
+      <div class="section-label">Sua posição</div>
+      <div class="pos-grid" id="pos-grid">
+        <div class="pos-card" data-pos="Goleiro"    style="--c:#FF6B35"><span class="pos-icon">🧤</span><div class="pos-name">Goleiro</div></div>
+        <div class="pos-card" data-pos="Lateral"    style="--c:#F1C40F"><span class="pos-icon">🏃</span><div class="pos-name">Lateral</div></div>
+        <div class="pos-card" data-pos="Defesa"     style="--c:#00C2FF"><span class="pos-icon">🛡️</span><div class="pos-name">Defesa</div></div>
+        <div class="pos-card" data-pos="Meio-campo" style="--c:#9B59B6"><span class="pos-icon">⚙️</span><div class="pos-name">Meio-campo</div></div>
+        <div class="pos-card" data-pos="Atacante"   style="--c:#2ECC71"><span class="pos-icon">🎯</span><div class="pos-name">Atacante</div></div>
+      </div>
+
+      <div class="error-box" id="error-box">🚫 Nome não encontrado. Verifique com o ADM.</div>
+      <button class="submit-btn" id="submit-btn" disabled>CONFIRMAR PRESENÇA ⚽</button>
+    </div>
+
+    <div id="success-area" style="display:none;text-align:center;padding:20px 0" class="success-confetti">
+      <div style="font-size:64px;margin-bottom:16px">🎉</div>
+      <div id="success-name" style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:#2ECC71;margin-bottom:8px"></div>
+      <div style="font-size:14px;color:#888;line-height:1.6">Você está na lista do baba!</div>
+      <div style="background:#ffffff08;border-radius:12px;padding:14px 20px;font-size:12px;color:#666;line-height:1.6;max-width:320px;margin:16px auto 0">
+        <strong style="color:#FFD700;display:block;margin-bottom:4px">⏳ Aguardando nota</strong>
+        O ADM vai avaliar sua habilidade antes do sorteio.
+      </div>
+    </div>
+  </div>
+
+  <!-- ADM PANEL -->
+  <button class="adm-toggle fu4" id="adm-toggle-btn">⚙️ ADM</button>
+
+  <div class="adm-panel" id="adm-panel">
+    <div id="adm-lock" style="text-align:center;padding:8px 0 4px">
+      <div style="font-size:28px;margin-bottom:8px">🔒</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:#FFD70088;margin-bottom:14px">ACESSO RESTRITO</div>
+      <input class="adm-input" id="adm-password" type="password" placeholder="Digite a senha" style="text-align:center;letter-spacing:4px;font-size:18px;margin-bottom:10px" autocomplete="off"/>
+      <div id="adm-pass-err" style="font-size:11px;color:#ff4444;min-height:16px;margin-bottom:8px"></div>
+      <button class="adm-save-btn" id="adm-unlock-btn" style="font-size:16px;padding:12px">ENTRAR 🔑</button>
+    </div>
+
+    <div id="adm-content" style="display:none">
+      <!-- MÚSICA -->
+      <div style="margin-bottom:4px">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:#00C2FF88;margin-bottom:14px;text-align:center">🎵 MÚSICA DO BABA</div>
+
+        <!-- Info sobre música padrão -->
+        <div class="default-music-info">
+          <strong>🎵 Música padrão ativa</strong>
+          Se nenhum link for salvo, o site toca automaticamente a música padrão do baba para todos os visitantes. Cole um link abaixo para substituí-la.
+        </div>
+
+        <div class="adm-field">
+          <div class="adm-label">Link do YouTube (opcional)</div>
+          <input class="adm-input" id="adm-music-url" placeholder="https://youtube.com/watch?v=... ou deixe vazio para padrão" autocomplete="off" autocorrect="off"/>
+          <div style="font-size:10px;color:#333;margin-top:5px;line-height:1.5">Deixe vazio para usar a música padrão. Cole qualquer link do YouTube para substituir.</div>
+        </div>
+        <div class="adm-field">
+          <div class="adm-label">Nome da Música (opcional)</div>
+          <input class="adm-input" id="adm-music-name" placeholder="Ex: Funk do Baba 🔥" maxlength="40" autocomplete="off"/>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button onclick="saveMusic()" style="flex:2;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#00C2FF,#0055ff);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;cursor:pointer">SALVAR MÚSICA 🎵</button>
+          <button onclick="resetToDefaultMusic()" style="flex:1;padding:12px;border-radius:10px;border:1px solid #ff444430;background:transparent;color:#ff4444aa;font-family:'Syne',sans-serif;font-size:11px;cursor:pointer">PADRÃO</button>
+        </div>
+        <div id="adm-music-msg" style="font-size:11px;text-align:center;margin-top:10px;min-height:16px"></div>
+      </div>
+
+      <hr class="adm-divider"/>
+
+      <div class="adm-title">🏆 DEFINIR CAMPEÃO</div>
+      <div class="adm-field">
+        <div class="adm-label">Nome do Campeão / Time</div>
+        <input class="adm-input" id="adm-champ-name" placeholder="Ex: Time do Matheus" maxlength="40" autocomplete="off"/>
+      </div>
+      <div class="adm-field">
+        <div class="adm-label">Data do Baba</div>
+        <input class="adm-input" id="adm-champ-date" placeholder="Ex: 26 de Abril de 2025" maxlength="40" autocomplete="off"/>
+      </div>
+      <div class="adm-field">
+        <div class="adm-label">Foto do Campeão</div>
+        <div class="photo-upload-area" id="photo-upload-area">
+          <input type="file" id="adm-photo-input" accept="image/*"/>
+          <span class="upload-icon">📸</span>
+          <div class="upload-hint">Toque para escolher uma foto</div>
+        </div>
+        <img class="photo-preview" id="photo-preview" alt="Preview da foto"/>
+      </div>
+      <button class="adm-save-btn" id="adm-save-btn">SALVAR CAMPEÃO 🏆</button>
+      <button class="adm-clear-btn" id="adm-clear-btn">Remover campeão atual</button>
+      <div class="adm-msg" id="adm-msg"></div>
+    </div>
+  </div>
+
+  <!-- MUSIC PLAYER FLUTUANTE -->
+  <div class="music-player" id="music-player" style="display:none" onclick="toggleMusic()">
+    <div style="position:relative;flex-shrink:0">
+      <div class="music-disc" id="music-disc">🎵</div>
+    </div>
+    <div class="music-info">
+      <div class="music-title" id="music-title">Música do Baba</div>
+      <div class="music-sub" id="music-sub">Toque para pausar</div>
+    </div>
+    <div class="music-eq" id="music-eq">
+      <span></span><span></span><span></span><span></span>
+    </div>
+    <div class="music-toggle" id="music-toggle-btn">⏸</div>
+  </div>
+
+  <!-- Botão inicial para ativar música (necessário por política do browser) -->
+  <button class="music-start-overlay" id="music-start-btn" style="display:none" onclick="userStartMusic()">
+    🎵 TOCAR MÚSICA DO BABA
+  </button>
+
+  <!-- YouTube iframe oculto -->
+  <div id="yt-container" style="position:fixed;bottom:-200px;left:-200px;width:1px;height:1px;overflow:hidden;pointer-events:none">
+    <div id="yt-player"></div>
+  </div>
+
+  <div class="player-list fu4">
+    <div class="list-title" id="list-title-el">QUEM JÁ CONFIRMOU</div>
+    <div id="player-list-items">
+      <div style="text-align:center;color:#333;font-size:13px;padding:20px">Carregando...</div>
+    </div>
+  </div>
 
 <script>
-const LS_KEY = "arenapib_jogadores";
-const POS_COLORS = {"Goleiro":"#FF6B35","Defesa":"#00C2FF","Meio-campo":"#9B59B6","Atacante":"#2ECC71"};
-let selectedPos = null;
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+const MAX_JOGADORES = 28;
 
-function lsLoad(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||"{}"); }catch(e){ return {}; } }
-function lsSave(d){ try{ localStorage.setItem(LS_KEY,JSON.stringify(d)); }catch(e){} }
+// ── MÚSICA PADRÃO ─────────────────────────────────────────────────────────────
+// Música padrão: pode ser qualquer vídeo do YouTube de música para o baba
+// Troque o videoId abaixo para mudar a música padrão embutida
+const DEFAULT_MUSIC = {
+  videoId: "l0U7sPBBMPE",           // ID do vídeo padrão (Funk/Pagode animado)
+  name: "🔥 Seleção Baba PIB",
+  isDefault: true
+};
 
-function validate(){
-  const name = document.getElementById("inp-name").value.trim();
-  document.getElementById("submit-btn").disabled = !(name.length>=2 && selectedPos);
+// ── CONTAGEM REGRESSIVA ───────────────────────────────────────────────────────
+function getNextBaba() {
+  const now = new Date();
+  const next = new Date(now);
+  const day = now.getDay();
+  const daysUntilSat = (6 - day + 7) % 7 || 7;
+  next.setDate(now.getDate() + daysUntilSat);
+  next.setHours(16, 0, 0, 0);
+  if (day === 6 && now >= new Date(next.getTime() + 60*60*1000)) {
+    next.setDate(next.getDate() + 7);
+  }
+  return next;
 }
 
-function renderList(){
-  const data = lsLoad();
-  const presentes = Object.values(data).filter(p=>p.presente===true);
-  const el = document.getElementById("player-list-items");
-  if(!presentes.length){
-    el.innerHTML=`<div style="text-align:center;color:#333;font-size:13px;padding:20px">Nenhum jogador confirmou ainda</div>`;
+const MESES = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+const DIAS_SEMANA = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+function pad(n){ return String(n).padStart(2,"0"); }
+
+function updateCountdown() {
+  const now = new Date();
+  const target = getNextBaba();
+  const diff = target - now;
+  const dateStr = `${DIAS_SEMANA[target.getDay()]}, ${target.getDate()} de ${MESES[target.getMonth()]} — 16:00`;
+  document.getElementById("cd-date-str").textContent = dateStr;
+  const day = now.getDay();
+  const h = now.getHours();
+  const isBabaTime = day === 6 && h === 16;
+  if (isBabaTime) {
+    document.getElementById("cd-normal").style.display = "none";
+    document.getElementById("cd-happening").style.display = "block";
     return;
   }
-  el.innerHTML = presentes.map(p=>{
-    const c = POS_COLORS[p.position]||"#888";
+  document.getElementById("cd-normal").style.display = "block";
+  document.getElementById("cd-happening").style.display = "none";
+  const totalSec = Math.floor(diff / 1000);
+  const d = Math.floor(totalSec / 86400);
+  const hh = Math.floor((totalSec % 86400) / 3600);
+  const mm = Math.floor((totalSec % 3600) / 60);
+  const ss = totalSec % 60;
+  document.getElementById("cd-d").textContent = pad(d);
+  document.getElementById("cd-h").textContent = pad(hh);
+  document.getElementById("cd-m").textContent = pad(mm);
+  document.getElementById("cd-s").textContent = pad(ss);
+}
+updateCountdown();
+setInterval(updateCountdown, 1000);
+
+// ── FIREBASE ──────────────────────────────────────────────────────────────────
+const POS_COLORS = {
+  "Goleiro":"#FF6B35","Lateral":"#F1C40F",
+  "Defesa":"#00C2FF","Meio-campo":"#9B59B6","Atacante":"#2ECC71"
+};
+
+firebase.initializeApp({
+  apiKey: "AIzaSyDJ3BB-IRyh9DIrDR15qlmWflzra7LGVj0",
+  authDomain: "pib-123.firebaseapp.com",
+  databaseURL: "https://pib-123-default-rtdb.firebaseio.com",
+  projectId: "pib-123",
+  storageBucket: "pib-123.firebasestorage.app",
+  messagingSenderId: "652801707789",
+  appId: "1:652801707789:web:ac51161bb9845a2400ea44"
+});
+const db = firebase.database();
+const playersRef = db.ref("jogadores");
+const champRef   = db.ref("campeao");
+const musicRef   = db.ref("musica");
+
+let players = [];
+let currentChamp = null;
+
+// ── CAPACIDADE ────────────────────────────────────────────────────────────────
+function updateCapacityUI(presentes) {
+  const count = presentes.length;
+  const vagas = MAX_JOGADORES - count;
+  const cheia = count >= MAX_JOGADORES;
+  const pct = Math.min((count / MAX_JOGADORES) * 100, 100);
+  const barColor = cheia ? '#ff4444' : count >= 24 ? '#FFB800' : '#2ECC71';
+
+  document.getElementById("capacity-bar").style.width = pct + "%";
+  document.getElementById("capacity-bar").style.background = barColor;
+  document.getElementById("capacity-count").textContent = count + "/" + MAX_JOGADORES;
+  document.getElementById("capacity-count").style.color = barColor;
+  document.getElementById("capacity-label").style.color = barColor;
+
+  if (cheia) {
+    document.getElementById("capacity-label").textContent = "🔒 Lista fechada";
+    document.getElementById("capacity-sub").textContent = "Baba lotado! Aguarde uma vaga.";
+    document.getElementById("capacity-sub").style.color = "#ff6666bb";
+    document.getElementById("lista-fechada-card").style.display = "block";
+    document.getElementById("form-card").style.display = "none";
+  } else {
+    document.getElementById("capacity-label").textContent = "⚽ Vagas disponíveis";
+    document.getElementById("capacity-sub").textContent =
+      count >= 24
+        ? `⚠️ Últimas ${vagas} vaga${vagas===1?'':'s'}! Confirme logo.`
+        : `${vagas} vaga${vagas===1?'':'s'} restante${vagas===1?'':'s'}`;
+    document.getElementById("capacity-sub").style.color = count >= 24 ? "#FFB800bb" : "#555";
+    document.getElementById("lista-fechada-card").style.display = "none";
+    document.getElementById("form-card").style.display = "block";
+  }
+}
+
+// ── CAMPEÃO ───────────────────────────────────────────────────────────────────
+function renderChampion(ch) {
+  currentChamp = ch;
+  const section = document.getElementById("champ-section");
+  if (!ch) { section.style.display = "none"; return; }
+  section.style.display = "block";
+  const wrap = document.getElementById("champ-photo-wrap");
+  if (ch.photo) {
+    wrap.innerHTML = `<img src="${ch.photo}" alt="Campeão"/>`;
+  } else {
+    wrap.innerHTML = `<div class="champ-photo-empty">
+      <div class="icon">🏆</div>
+      <div class="txt">FOTO A CAMINHO</div>
+    </div>`;
+  }
+  document.getElementById("champ-name-display").textContent = ch.name || "—";
+  document.getElementById("champ-date-display").textContent = ch.dateFormatted || ch.date || "";
+}
+
+champRef.on("value", snap => { renderChampion(snap.val()); });
+
+// ── LISTA DE CONFIRMADOS ──────────────────────────────────────────────────────
+function renderList(presentes) {
+  const el = document.getElementById("player-list-items");
+  const titleEl = document.getElementById("list-title-el");
+  const cheia = presentes.length >= MAX_JOGADORES;
+
+  titleEl.innerHTML = cheia
+    ? `<span style="color:#ff6666">🔒 LISTA FECHADA — ${presentes.length}/${MAX_JOGADORES}</span>`
+    : `QUEM JÁ CONFIRMOU (${presentes.length}/${MAX_JOGADORES})`;
+
+  if (!presentes.length) {
+    el.innerHTML = '<div style="text-align:center;color:#333;font-size:13px;padding:20px">Nenhum jogador confirmou ainda</div>';
+    return;
+  }
+  el.innerHTML = presentes.map((p, idx) => {
+    const c = POS_COLORS[p.position] || "#888";
     return `<div class="player-item">
+      <div style="width:24px;height:24px;border-radius:50%;background:#2ECC7120;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:12px;color:#2ECC71;flex-shrink:0">${idx+1}</div>
       <div class="player-avatar" style="background:linear-gradient(135deg,${c},${c}88)">${(p.name||"?").charAt(0)}</div>
       <div>
         <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px">${p.name}</div>
-        <span style="font-size:9px;background:${c}33;color:${c};border-radius:4px;padding:2px 6px;font-weight:700;text-transform:uppercase">${p.position}</span>
+        <span style="font-size:9px;background:${c}33;color:${c};border-radius:4px;padding:2px 6px;font-weight:700;text-transform:uppercase">${p.position||""}</span>
       </div>
     </div>`;
   }).join('');
 }
 
-document.getElementById("pos-grid").addEventListener("click", e=>{
-  const card = e.target.closest("[data-pos]"); if(!card) return;
-  document.querySelectorAll(".pos-card").forEach(c=>c.classList.remove("active"));
+// ── ESCUTA FIREBASE ───────────────────────────────────────────────────────────
+playersRef.on("value", snap => {
+  const data = snap.val() || {};
+  players = Object.entries(data).map(([id, val]) => ({id, ...val}));
+  const presentes = players
+    .filter(p => p.presente === true)
+    .sort((a, b) => (a.confirmedAt||0) - (b.confirmedAt||0));
+  updateCapacityUI(presentes);
+  renderList(presentes);
+});
+
+// ── FORMULÁRIO ────────────────────────────────────────────────────────────────
+let selectedPos = null;
+
+function validate() {
+  const name = document.getElementById("inp-name").value.trim();
+  document.getElementById("submit-btn").disabled = !(name.length >= 2 && selectedPos);
+}
+
+document.getElementById("pos-grid").addEventListener("click", e => {
+  const card = e.target.closest("[data-pos]"); if (!card) return;
+  document.querySelectorAll(".pos-card").forEach(c => c.classList.remove("active"));
   card.classList.add("active");
   selectedPos = card.dataset.pos;
   validate();
@@ -115,26 +596,351 @@ document.getElementById("pos-grid").addEventListener("click", e=>{
 
 document.getElementById("inp-name").addEventListener("input", validate);
 
-document.getElementById("submit-btn").addEventListener("click", ()=>{
+document.getElementById("submit-btn").addEventListener("click", async () => {
   const name = document.getElementById("inp-name").value.trim();
-  if(!name || !selectedPos) return;
-  const data = lsLoad();
-  const existing = Object.entries(data).find(([id,p])=>p.name&&p.name.toLowerCase()===name.toLowerCase());
-  if(!existing){
-    document.getElementById("error-box").style.display="block";
+  if (!name || !selectedPos) return;
+
+  const presentes = players.filter(p => p.presente === true);
+  if (presentes.length >= MAX_JOGADORES) {
+    updateCapacityUI(presentes);
     return;
   }
-  document.getElementById("error-box").style.display="none";
-  const [id, player] = existing;
-  data[id] = {...player, position: selectedPos, presente: true, confirmedAt: Date.now()};
-  lsSave(data);
-  document.getElementById("form-area").style.display="none";
-  document.getElementById("success-area").style.display="block";
-  document.getElementById("success-name").textContent="Bem-vindo, "+player.name+"! 👋";
-  renderList();
+
+  const btn = document.getElementById("submit-btn");
+  btn.textContent = "VERIFICANDO..."; btn.disabled = true;
+
+  const existing = players.find(p => p.name && p.name.toLowerCase() === name.toLowerCase());
+
+  if (!existing) {
+    document.getElementById("error-box").style.display = "block";
+    btn.textContent = "CONFIRMAR PRESENÇA ⚽"; btn.disabled = false;
+    return;
+  }
+
+  document.getElementById("error-box").style.display = "none";
+
+  await playersRef.child(existing.id).update({
+    position: selectedPos,
+    presente: true,
+    confirmedAt: Date.now()
+  });
+
+  document.getElementById("form-area").style.display = "none";
+  const successArea = document.getElementById("success-area");
+  successArea.style.display = "block";
+  document.getElementById("success-name").textContent = "Bem-vindo, " + existing.name + "! 👋";
+
+  const colors = ["#FFD700","#00C2FF","#2ECC71","#FF6B35","#9B59B6","#fff"];
+  for (let i = 0; i < 18; i++) {
+    const c = document.createElement("div");
+    c.className = "confetti-piece";
+    c.style.cssText = `background:${colors[i%colors.length]};left:${Math.random()*100}%;top:${Math.random()*30}%;animation-delay:${Math.random()*0.6}s;animation-duration:${0.9+Math.random()*0.8}s;transform:rotate(${Math.random()*360}deg);width:${6+Math.random()*6}px;height:${6+Math.random()*6}px;border-radius:${Math.random()>0.5?'50%':'2px'};`;
+    successArea.appendChild(c);
+    setTimeout(() => c.remove(), 2000);
+  }
 });
 
-renderList();
+// ── ADM PANEL ────────────────────────────────────────────────────────────────
+const admPanel    = document.getElementById("adm-panel");
+const admToggle   = document.getElementById("adm-toggle-btn");
+const admNameInp  = document.getElementById("adm-champ-name");
+const admDateInp  = document.getElementById("adm-champ-date");
+const admPhotoInp = document.getElementById("adm-photo-input");
+const photoPreview= document.getElementById("photo-preview");
+const admMsg      = document.getElementById("adm-msg");
+
+let pendingPhotoB64 = null;
+let admUnlocked = false;
+const ADM_PASS = "baba123";
+
+document.getElementById("adm-unlock-btn").addEventListener("click", checkAdmPass);
+document.getElementById("adm-password").addEventListener("keydown", e => {
+  if (e.key === "Enter") checkAdmPass();
+});
+
+function checkAdmPass() {
+  const val = document.getElementById("adm-password").value;
+  if (val === ADM_PASS) {
+    admUnlocked = true;
+    document.getElementById("adm-lock").style.display = "none";
+    document.getElementById("adm-content").style.display = "block";
+    if (currentChamp) {
+      admNameInp.value = currentChamp.name || "";
+      admDateInp.value = currentChamp.dateFormatted || currentChamp.date || "";
+      if (currentChamp.photo) {
+        photoPreview.src = currentChamp.photo;
+        photoPreview.classList.add("visible");
+        pendingPhotoB64 = currentChamp.photo;
+      }
+    }
+    if (currentMusic && !currentMusic.isDefault) {
+      const urlInp = document.getElementById("adm-music-url");
+      const nameInp = document.getElementById("adm-music-name");
+      if (urlInp) urlInp.value = currentMusic.url || "";
+      if (nameInp) nameInp.value = currentMusic.name || "";
+    }
+  } else {
+    const err = document.getElementById("adm-pass-err");
+    err.textContent = "❌ Senha incorreta";
+    document.getElementById("adm-password").value = "";
+    setTimeout(() => { err.textContent = ""; }, 2000);
+  }
+}
+
+admToggle.addEventListener("click", () => {
+  const open = admPanel.classList.toggle("open");
+  admToggle.textContent = open ? "✕ Fechar ADM" : "⚙️ ADM";
+  if (open) {
+    if (!admUnlocked) {
+      document.getElementById("adm-lock").style.display = "block";
+      document.getElementById("adm-content").style.display = "none";
+      document.getElementById("adm-password").value = "";
+    }
+    if (currentChamp && admUnlocked) {
+      admNameInp.value = currentChamp.name || "";
+      admDateInp.value = currentChamp.dateFormatted || currentChamp.date || "";
+      if (currentChamp.photo) {
+        photoPreview.src = currentChamp.photo;
+        photoPreview.classList.add("visible");
+        pendingPhotoB64 = currentChamp.photo;
+      }
+    }
+  }
+});
+
+admPhotoInp.addEventListener("change", () => {
+  const file = admPhotoInp.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    pendingPhotoB64 = e.target.result;
+    photoPreview.src = pendingPhotoB64;
+    photoPreview.classList.add("visible");
+    document.querySelector(".upload-hint").textContent = file.name;
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById("adm-save-btn").addEventListener("click", () => {
+  const name = admNameInp.value.trim();
+  if (!name) { showAdmMsg("Informe o nome do campeão", "#FFD700"); return; }
+  champRef.set({ name, dateFormatted: admDateInp.value.trim(), date: admDateInp.value.trim(), photo: pendingPhotoB64 || null });
+  showAdmMsg("Campeão salvo com sucesso! ✅", "#2ECC71");
+});
+
+document.getElementById("adm-clear-btn").addEventListener("click", () => {
+  champRef.remove();
+  admNameInp.value = ""; admDateInp.value = "";
+  pendingPhotoB64 = null;
+  photoPreview.src = ""; photoPreview.classList.remove("visible");
+  document.querySelector(".upload-hint").textContent = "Toque para escolher uma foto";
+  showAdmMsg("Campeão removido 🗑️", "#ff6666");
+});
+
+function showAdmMsg(text, color) {
+  admMsg.textContent = text; admMsg.style.color = color;
+  setTimeout(() => { admMsg.textContent = ""; }, 3000);
+}
+
+// ── MÚSICA ────────────────────────────────────────────────────────────────────
+let ytPlayer = null;
+let musicPlaying = false;
+let currentMusic = null;   // música ativa (pode ser padrão ou custom)
+let ytReady = false;
+let userInteracted = false; // se o usuário já clicou em algo
+let pendingVideoId = null;
+
+// Carregar YouTube IFrame API
+(function loadYTApi(){
+  const tag = document.createElement("script");
+  tag.src = "https://www.youtube.com/iframe_api";
+  document.head.appendChild(tag);
+})();
+
+window.onYouTubeIframeAPIReady = function() {
+  ytReady = true;
+  if (pendingVideoId) {
+    if (userInteracted) {
+      startYTPlayer(pendingVideoId);
+    } else {
+      showMusicStartButton();
+    }
+  }
+};
+
+function extractYTVideoId(url) {
+  if (!url) return null;
+  const patterns = [
+    /(?:youtube\.com\/watch\?(?:.*&)?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([a-zA-Z0-9_-]{11})/,
+    /^([a-zA-Z0-9_-]{11})$/
+  ];
+  for (const p of patterns) {
+    const m = url.match(p);
+    if (m) return m[1];
+  }
+  return null;
+}
+
+function showMusicStartButton() {
+  document.getElementById("music-start-btn").style.display = "flex";
+  document.getElementById("music-player").style.display = "none";
+}
+
+function hideMusicStartButton() {
+  document.getElementById("music-start-btn").style.display = "none";
+}
+
+// Usuário clica no botão para iniciar música
+function userStartMusic() {
+  userInteracted = true;
+  hideMusicStartButton();
+  if (pendingVideoId) {
+    startYTPlayer(pendingVideoId);
+    document.getElementById("music-player").style.display = "flex";
+  }
+}
+
+// Qualquer interação do usuário na página ativa autoplay silencioso
+document.addEventListener("click", function onFirstClick() {
+  userInteracted = true;
+  document.removeEventListener("click", onFirstClick);
+  // Se já estava esperando, toca agora
+  if (pendingVideoId && !ytPlayer) {
+    hideMusicStartButton();
+    if (ytReady) {
+      startYTPlayer(pendingVideoId);
+      document.getElementById("music-player").style.display = "flex";
+    }
+  }
+}, { once: true });
+
+function startYTPlayer(videoId) {
+  if (!videoId) return;
+  pendingVideoId = videoId;
+
+  if (ytPlayer) {
+    ytPlayer.loadVideoById(videoId);
+    ytPlayer.playVideo();
+    setMusicUI(true);
+  } else {
+    ytPlayer = new YT.Player("yt-player", {
+      height:"1", width:"1",
+      videoId: videoId,
+      playerVars: { autoplay:1, loop:1, playlist:videoId, controls:0, fs:0, rel:0, modestbranding:1, mute:0 },
+      events: {
+        onReady: e => { e.target.playVideo(); setMusicUI(true); },
+        onStateChange: e => {
+          if (e.data === YT.PlayerState.PLAYING) setMusicUI(true);
+          if (e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.ENDED) setMusicUI(false);
+        }
+      }
+    });
+  }
+  musicPlaying = true;
+}
+
+function setMusicUI(playing) {
+  musicPlaying = playing;
+  const disc = document.getElementById("music-disc");
+  const eq   = document.getElementById("music-eq");
+  const btn  = document.getElementById("music-toggle-btn");
+  const sub  = document.getElementById("music-sub");
+  if (playing) {
+    disc.classList.add("playing");
+    eq.classList.add("playing");
+    btn.textContent = "⏸";
+    sub.textContent = "Toque para pausar";
+  } else {
+    disc.classList.remove("playing");
+    eq.classList.remove("playing");
+    btn.textContent = "▶";
+    sub.textContent = "Pausado — toque para tocar";
+  }
+}
+
+function toggleMusic() {
+  if (!ytPlayer) return;
+  if (musicPlaying) { ytPlayer.pauseVideo(); setMusicUI(false); }
+  else              { ytPlayer.playVideo();  setMusicUI(true);  }
+}
+
+// Atualiza título do player
+function updatePlayerTitle(music) {
+  const titleEl = document.getElementById("music-title");
+  if (music.isDefault) {
+    titleEl.textContent = music.name || "🎵 Música do Baba";
+  } else {
+    titleEl.textContent = music.name || "Música do Baba";
+  }
+}
+
+// ── Escuta música no Firebase ─────────────────────────────────────────────────
+musicRef.on("value", snap => {
+  const data = snap.val();
+  const player = document.getElementById("music-player");
+  const titleEl = document.getElementById("music-title");
+
+  if (!data || !data.videoId) {
+    // Sem música customizada → usa padrão
+    currentMusic = { ...DEFAULT_MUSIC };
+  } else {
+    // Música customizada do ADM
+    currentMusic = { ...data, isDefault: false };
+  }
+
+  player.style.display = "flex";
+  updatePlayerTitle(currentMusic);
+  pendingVideoId = currentMusic.videoId;
+
+  if (userInteracted && ytReady) {
+    startYTPlayer(currentMusic.videoId);
+    hideMusicStartButton();
+  } else if (!userInteracted) {
+    showMusicStartButton();
+  } else if (ytReady) {
+    startYTPlayer(currentMusic.videoId);
+  }
+});
+
+// ── Funções ADM de música ─────────────────────────────────────────────────────
+function saveMusic() {
+  const url  = document.getElementById("adm-music-url").value.trim();
+  const name = document.getElementById("adm-music-name").value.trim();
+  const msgEl = document.getElementById("adm-music-msg");
+
+  if (!url) {
+    // Sem URL = volta para padrão
+    resetToDefaultMusic();
+    return;
+  }
+
+  const videoId = extractYTVideoId(url);
+  if (!videoId) { showMusicMsg("Link inválido. Use um link do YouTube.", "#ff6666"); return; }
+  musicRef.set({ videoId, url, name: name || "Música do Baba" });
+  showMusicMsg("Música salva! 🎵 Todos ouvirão agora.", "#2ECC71");
+}
+
+function resetToDefaultMusic() {
+  // Remove entrada do Firebase → sistema usa padrão automaticamente
+  musicRef.remove();
+  document.getElementById("adm-music-url").value = "";
+  document.getElementById("adm-music-name").value = "";
+  showMusicMsg("Voltando para música padrão 🎵", "#00C2FF");
+}
+
+function clearMusic() {
+  musicRef.remove();
+  document.getElementById("adm-music-url").value = "";
+  document.getElementById("adm-music-name").value = "";
+  if (ytPlayer) ytPlayer.stopVideo();
+  showMusicMsg("Música removida 🔇", "#ff6666");
+}
+
+function showMusicMsg(text, color) {
+  const el = document.getElementById("adm-music-msg");
+  el.textContent = text; el.style.color = color;
+  setTimeout(() => { el.textContent = ""; }, 3000);
+}
 </script>
 </body>
 </html>
