@@ -4,186 +4,215 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
   <meta name="theme-color" content="#0d1b3e"/>
-  <title>Arena PIB — Confirmar Presença</title>
+  <title>Arena PIB — Scouting</title>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
   <style>
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-    body{background:radial-gradient(ellipse at 30% 0%,#0d1b3e,#080c1a 60%);min-height:100vh;color:#fff;font-family:'Syne',sans-serif;display:flex;flex-direction:column;align-items:center;padding:20px 20px 80px}
+    body{background:#080c1a; min-height:100vh;color:#fff;font-family:'Syne',sans-serif;display:flex;flex-direction:column;align-items:center;padding:20px}
     
-    @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes pulseGold { 0% { box-shadow: 0 0 0 0 #f1c40f66; } 50% { box-shadow: 0 0 20px 5px #f1c40f22; } 100% { box-shadow: 0 0 0 0 #f1c40f66; } }
     .fu {animation:fadeUp 0.5s ease forwards}
-    
-    /* CAMPEÃO / DESTAQUE */
-    .champion-card{width:100%;max-width:420px;background:linear-gradient(135deg, #f1c40f22, #00000000);border:1px solid #f1c40f44;border-radius:22px;padding:20px;margin-bottom:25px;display:flex;align-items:center;gap:15px;animation: pulseGold 3s infinite}
-    .champion-photo{width:80px;height:80px;border-radius:50%;border:3px solid #f1c40f;object-fit:cover}
-    
-    .card{background:rgba(255, 255, 255, 0.03);backdrop-filter: blur(10px);border:1px solid #ffffff14;border-radius:22px;padding:28px 24px;width:100%;max-width:420px;box-shadow:0 20px 60px #00000088}
-    .section-label{font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px}
-    
-    .name-input, .video-input{width:100%;background:#ffffff0d;border:1.5px solid #ffffff18;border-radius:12px;padding:14px 16px;color:#fff;font-family:'Syne',sans-serif;outline:none;margin-bottom:20px}
-    .name-input{font-family:'Bebas Neue',sans-serif; font-size:22px;}
-    
-    .photo-upload-area{width:100%;border:2px dashed #ffffff15;border-radius:12px;padding:16px;text-align:center;cursor:pointer;background:#ffffff05;margin-bottom:20px}
-    .player-preview-img{width:70px;height:70px;border-radius:50%;object-fit:cover;margin:0 auto 8px;display:none;border:2px solid #00C2FF}
-    
-    .pos-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
-    .pos-card{padding:14px 10px;border-radius:14px;border:2px solid #ffffff12;background:#ffffff07;cursor:pointer;text-align:center;transition:0.2s}
-    .pos-card.active{border-color:var(--c);background:color-mix(in srgb,var(--c) 18%,transparent)}
-    .pos-name{font-family:'Bebas Neue',sans-serif;font-size:16px;color:#aaa}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
 
-    .submit-btn{width:100%;padding:18px;border-radius:14px;border:none;background:linear-gradient(135deg,#00C2FF,#0055ff);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;cursor:pointer}
-    .submit-btn:disabled{background:#ffffff12;color:#444}
+    /* CARD DO CAMPEÃO */
+    .champ-box{width:100%;max-width:400px;background:linear-gradient(135deg,#f1c40f 0%,#aa8207 100%);border-radius:20px;padding:2px;margin-bottom:20px;box-shadow:0 10px 30px #f1c40f33}
+    .champ-inner{background:#0d1b3e;border-radius:18px;padding:15px;display:flex;align-items:center;gap:15px}
+    .champ-img{width:70px;height:70px;border-radius:50%;border:3px solid #f1c40f;object-fit:cover}
 
-    .player-list{margin-top:28px;width:100%;max-width:420px}
-    .player-item{display:flex;align-items:center;gap:12px;background:#ffffff08;border-radius:12px;padding:11px 14px;margin-bottom:8px}
-    .player-avatar-img{width:38px;height:38px;border-radius:50%;object-fit:cover}
-    .btn-video{background:#ffffff10; color:#fff; border-radius:8px; padding:6px 10px; font-size:12px; text-decoration:none}
+    /* FORMULÁRIO */
+    .card{background:rgba(255,255,255,0.03);backdrop-filter:blur(10px);border:1px solid #ffffff14;border-radius:22px;padding:24px;width:100%;max-width:400px;margin-bottom:30px}
+    .section-label{font-size:10px;font-weight:800;color:#555;text-transform:uppercase;margin-bottom:8px;letter-spacing:1px}
+    .input-field{width:100%;background:#ffffff0d;border:1px solid #ffffff18;border-radius:10px;padding:12px;color:#fff;margin-bottom:15px;outline:none}
+
+    /* POSIÇÕES */
+    .pos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px}
+    .pos-btn{padding:10px;background:#ffffff08;border:1px solid #ffffff18;border-radius:8px;font-size:10px;text-align:center;cursor:pointer;color:#888}
+    .pos-btn.active{background:#00C2FF22;border-color:#00C2FF;color:#00C2FF}
+
+    /* FIFA STYLE PLAYER CARD */
+    .player-card{display:flex;align-items:center;background:linear-gradient(90deg,#161b2e,#0d111d);border-radius:15px;padding:12px;margin-bottom:10px;border:1px solid #ffffff0d;position:relative;overflow:hidden}
+    .player-card::before{content:'';position:absolute;left:0;top:0;width:4px;height:100%;background:var(--c)}
+    
+    .ovr-badge{width:40px;height:50px;background:var(--c);display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:8px;margin-right:12px}
+    .ovr-val{font-family:'Bebas Neue',sans-serif;font-size:24px;line-height:1}
+    .ovr-txt{font-size:8px;font-weight:800;opacity:0.8}
+
+    .player-img-list{width:50px;height:50px;border-radius:10px;object-fit:cover;background:#222}
+    
+    .stats-row{display:flex;gap:10px;margin-top:5px}
+    .stat{font-size:10px;color:#666}
+    .stat b{color:#fff;font-family:'Bebas Neue',sans-serif;font-size:13px}
+
+    /* MODO ADM */
+    #adm-panel{background:#ff475722;border:1px solid #ff475744;padding:15px;border-radius:15px;margin-top:20px;display:none}
+    .adm-input{width:60px;padding:5px;background:#000;border:1px solid #444;color:#fff;border-radius:5px;margin-bottom:5px}
+    .btn-adm-save{background:#ff4757;color:#fff;border:none;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:11px}
   </style>
 </head>
 <body>
 
-  <!-- SEÇÃO DO CAMPEÃO -->
-  <div class="champion-card fu" id="champion-section" style="display: none;">
-    <img src="" id="champ-img" class="champion-photo">
-    <div>
-      <div style="font-size: 10px; color: #f1c40f; font-weight: 800; text-transform: uppercase;">Craque do Último Baba</div>
-      <div id="champ-name" style="font-family: 'Bebas Neue', sans-serif; font-size: 24px;">---</div>
+  <!-- CAMPEÃO -->
+  <div id="champ-display" class="champ-box fu" style="display:none">
+    <div class="champ-inner">
+      <img id="champ-img" src="" class="champ-img">
+      <div>
+        <div style="color:#f1c40f;font-size:10px;font-weight:800">CRAQUE DA SEMANA</div>
+        <div id="champ-name" style="font-family:'Bebas Neue',sans-serif;font-size:24px">---</div>
+      </div>
     </div>
-    <div style="font-size: 30px; margin-left: auto;">👑</div>
   </div>
 
-  <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:3px;color:#fff;text-align:center" class="fu">ARENA PIB</div>
-  <div style="font-size:13px;color:#666;text-align:center;margin-bottom:28px" class="fu">Vale do São Francisco • 2026</div>
+  <h1 style="font-family:'Bebas Neue',sans-serif;letter-spacing:4px;margin-bottom:20px" onclick="toggleAdm()">ARENA PIB</h1>
 
+  <!-- FORMULÁRIO -->
   <div class="card fu">
-    <div id="form-area">
-      <div class="section-label">Seu nome</div>
-      <input class="name-input" id="inp-name" placeholder="Ex: Paulo Ricardo">
+    <div id="reg-form">
+        <div class="section-label">Nome do Atleta</div>
+        <input type="text" id="p-name" class="input-field" placeholder="Digite seu nome...">
 
-      <div class="section-label">Sua Foto (Opcional)</div>
-      <div class="photo-upload-area" id="area-upload" onclick="document.getElementById('inp-photo').click()">
-        <input type="file" id="inp-photo" accept="image/*" style="display:none">
-        <img id="prev-img" class="player-preview-img">
-        <span id="upload-icon" style="font-size:24px; display:block">📸</span>
-        <div id="upload-txt" style="font-size:11px; color:#555; margin-top:5px">Toque para adicionar foto</div>
-      </div>
+        <div class="section-label">Foto de Perfil</div>
+        <input type="file" id="p-file" accept="image/*" class="input-field" style="font-size:10px">
 
-      <div class="section-label">Link de lance/vídeo (Opcional)</div>
-      <input class="video-input" id="inp-video" placeholder="Link do lance">
+        <div class="section-label">Posição</div>
+        <div class="pos-grid" id="pos-grid">
+            <div class="pos-btn" data-pos="GK">GK</div>
+            <div class="pos-btn" data-pos="LAT">LAT</div>
+            <div class="pos-btn" data-pos="DEF">DEF</div>
+            <div class="pos-btn" data-pos="MEI">MEI</div>
+            <div class="pos-btn" data-pos="ATA">ATA</div>
+        </div>
 
-      <div class="section-label">Sua posição</div>
-      <div class="pos-grid" id="pos-grid">
-        <div class="pos-card" data-pos="Goleiro" style="--c:#FF6B35"><span>🧤</span><div class="pos-name">Goleiro</div></div>
-        <div class="pos-card" data-pos="Lateral" style="--c:#F1C40F"><span>🏃</span><div class="pos-name">Lateral</div></div>
-        <div class="pos-card" data-pos="Defesa" style="--c:#00C2FF"><span>🛡️</span><div class="pos-name">Defesa</div></div>
-        <div class="pos-card" data-pos="Meio-campo" style="--c:#9B59B6"><span>⚙️</span><div class="pos-name">Meio</div></div>
-        <div class="pos-card" data-pos="Atacante" style="--c:#2ECC71"><span>🎯</span><div class="pos-name">Atacante</div></div>
-      </div>
-
-      <button class="submit-btn" id="submit-btn" disabled>CONFIRMAR PRESENÇA ⚽</button>
-    </div>
-
-    <div id="success-area" style="display:none; text-align:center">
-        <div style="font-size:50px">🎉</div>
-        <div id="success-msg" style="font-family:'Bebas Neue',sans-serif; font-size:24px; color:#2ECC71"></div>
-        <p style="font-size:12px; color:#666; margin-top:10px">Presença confirmada!</p>
+        <button onclick="confirmar()" id="btn-sub" style="width:100%;padding:15px;background:#00C2FF;border:none;border-radius:10px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:20px;cursor:pointer">CONFIRMAR PRESENÇA</button>
     </div>
   </div>
 
-  <div class="player-list">
-    <div id="player-list-items"></div>
+  <!-- LISTA DE JOGADORES -->
+  <div id="player-list" style="width:100%;max-width:400px"></div>
+
+  <!-- PAINEL ADM -->
+  <div id="adm-panel" class="card">
+    <div class="section-label" style="color:#ff4757">PAINEL DO CONSULTOR (ADM)</div>
+    <div id="adm-players-list"></div>
   </div>
 
 <script>
-// CONFIG FIREBASE
-const firebaseConfig = {
-  apiKey: "AIzaSyDJ3BB-IRyh9DIrDR15qlmWflzra7LGVj0",
-  databaseURL: "https://pib-123-default-rtdb.firebaseio.com",
-  projectId: "pib-123",
-};
+// Firebase
+const firebaseConfig = { apiKey: "AIzaSyDJ3BB-IRyh9DIrDR15qlmWflzra7LGVj0", databaseURL: "https://pib-123-default-rtdb.firebaseio.com", projectId: "pib-123" };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-let selectedPos = null;
-let playerPhotoB64 = null;
+let selectedPos = "";
+let photoB64 = "";
 let allPlayers = [];
+let clickCount = 0;
 
-// Carregar Imagem
-document.getElementById("inp-photo").addEventListener("change", function(e) {
-  const file = e.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    playerPhotoB64 = e.target.result;
-    document.getElementById("prev-img").src = playerPhotoB64;
-    document.getElementById("prev-img").style.display = "block";
-    document.getElementById("upload-icon").style.display = "none";
-  };
-  reader.readAsDataURL(file);
+// Upload Foto
+document.getElementById('p-file').addEventListener('change', function(e) {
+    const reader = new FileReader();
+    reader.onload = e => photoB64 = e.target.result;
+    reader.readAsDataURL(e.target.files[0]);
 });
 
 // Posição
-document.getElementById("pos-grid").addEventListener("click", e => {
-  const card = e.target.closest("[data-pos]"); if (!card) return;
-  document.querySelectorAll(".pos-card").forEach(c => c.classList.remove("active"));
-  card.classList.add("active");
-  selectedPos = card.dataset.pos;
-  document.getElementById("submit-btn").disabled = !(document.getElementById("inp-name").value.length >= 3 && selectedPos);
+document.getElementById('pos-grid').addEventListener('click', e => {
+    if(!e.target.dataset.pos) return;
+    document.querySelectorAll('.pos-btn').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    selectedPos = e.target.dataset.pos;
 });
 
-// Submit
-document.getElementById("submit-btn").addEventListener("click", async () => {
-  const name = document.getElementById("inp-name").value.trim();
-  const existing = allPlayers.find(p => p.name.toLowerCase() === name.toLowerCase());
-  
-  if (!existing) { alert("Nome não autorizado."); return; }
+function toggleAdm() {
+    clickCount++;
+    if(clickCount >= 5) {
+        const pass = prompt("Senha do ADM:");
+        if(pass === "1234") document.getElementById('adm-panel').style.display = "block";
+        clickCount = 0;
+    }
+}
 
-  await db.ref("jogadores/" + existing.id).update({
-    position: selectedPos,
-    presente: true,
-    photo: playerPhotoB64 || null,
-    video: document.getElementById("inp-video").value || null,
-    confirmedAt: Date.now()
-  });
+async function confirmar() {
+    const name = document.getElementById('p-name').value.trim();
+    if(!name || !selectedPos) return alert("Preencha nome e posição!");
+    
+    const existing = allPlayers.find(p => p.name.toLowerCase() === name.toLowerCase());
+    if(!existing) return alert("Nome não cadastrado no sistema!");
 
-  document.getElementById("form-area").style.display = "none";
-  document.getElementById("success-area").style.display = "block";
-  document.getElementById("success-msg").textContent = "BOA, " + existing.name + "!";
-});
+    await db.ref('jogadores/' + existing.id).update({
+        presente: true,
+        pos: selectedPos,
+        photo: photoB64 || existing.photo || "",
+        confirmedAt: Date.now()
+    });
+    alert("Presença confirmada, craque!");
+    location.reload();
+}
 
-// Sync com Firebase
-db.ref().on("value", snap => {
-  const data = snap.val() || {};
-  allPlayers = Object.entries(data.jogadores || {}).map(([id, val]) => ({id, ...val}));
-  
-  // Atualizar Campeão
-  if (data.campeao) {
-    document.getElementById("champion-section").style.display = "flex";
-    document.getElementById("champ-name").textContent = data.campeao.name;
-    document.getElementById("champ-img").src = data.campeao.photo || 'https://via.placeholder.com/80';
-  }
+async function updateStats(id) {
+    const pac = document.getElementById(`pac-${id}`).value;
+    const sho = document.getElementById(`sho-${id}`).value;
+    const def = document.getElementById(`def-${id}`).value;
+    const isChamp = document.getElementById(`champ-${id}`).checked;
 
-  // Lista de Presentes
-  const presentes = allPlayers.filter(p => p.presente).sort((a,b) => a.confirmedAt - b.confirmedAt);
-  const POS_COLORS = {"Goleiro":"#FF6B35","Lateral":"#F1C40F","Defesa":"#00C2FF","Meio-campo":"#9B59B6","Atacante":"#2ECC71"};
+    const updates = { pac, sho, def };
+    await db.ref('jogadores/'+id).update(updates);
+    
+    if(isChamp) {
+        const p = allPlayers.find(x => x.id === id);
+        await db.ref('campeao').set({ name: p.name, photo: p.photo || "" });
+    }
+    alert("Stats atualizados!");
+}
 
-  document.getElementById("player-list-items").innerHTML = presentes.map((p, idx) => {
-    const c = POS_COLORS[p.position];
-    return `
-      <div class="player-item fu" style="justify-content: space-between">
-        <div style="display:flex; align-items:center; gap:12px">
-          <div style="font-size:11px; color:#444">${idx+1}</div>
-          ${p.photo ? `<img src="${p.photo}" class="player-avatar-img" style="border:2px solid ${c}">` : `<div style="width:38px;height:38px;background:${c};border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold">${p.name[0]}</div>`}
-          <div>
-            <div style="font-family:'Bebas Neue',sans-serif; font-size:18px">${p.name}</div>
-            <div style="font-size:9px; color:${c}; font-weight:700">${p.position}</div>
-          </div>
+// Sync
+db.ref().on('value', snap => {
+    const data = snap.val() || {};
+    allPlayers = Object.entries(data.jogadores || {}).map(([id, v]) => ({id, ...v}));
+    
+    // Render Campeão
+    if(data.campeao) {
+        document.getElementById('champ-display').style.display = "block";
+        document.getElementById('champ-name').textContent = data.campeao.name;
+        document.getElementById('champ-img').src = data.campeao.photo || 'https://via.placeholder.com/100';
+    }
+
+    const presentes = allPlayers.filter(p => p.presente).sort((a,b) => b.confirmedAt - a.confirmedAt);
+    const list = document.getElementById('player-list');
+    const admList = document.getElementById('adm-players-list');
+    
+    const colors = {GK:'#FF6B35', LAT:'#F1C40F', DEF:'#00C2FF', MEI:'#9B59B6', ATA:'#2ECC71'};
+
+    list.innerHTML = presentes.map(p => {
+        const ovr = Math.round((parseInt(p.pac||0) + parseInt(p.sho||0) + parseInt(p.def||0)) / 3) || 50;
+        const c = colors[p.pos] || '#444';
+        return `
+        <div class="player-card fu" style="--c:${c}">
+            <div class="ovr-badge">
+                <span class="ovr-val">${ovr}</span>
+                <span class="ovr-txt">${p.pos}</span>
+            </div>
+            <img src="${p.photo || 'https://via.placeholder.com/50'}" class="player-img-list">
+            <div style="margin-left:15px">
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:18px">${p.name}</div>
+                <div class="stats-row">
+                    <span class="stat">PAC <b>${p.pac||0}</b></span>
+                    <span class="stat">SHO <b>${p.sho||0}</b></span>
+                    <span class="stat">DEF <b>${p.def||0}</b></span>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+
+    admList.innerHTML = allPlayers.map(p => `
+        <div style="border-bottom:1px solid #333; padding:10px 0; font-size:12px">
+            <b>${p.name}</b><br>
+            PAC: <input id="pac-${p.id}" class="adm-input" value="${p.pac||0}">
+            SHO: <input id="sho-${p.id}" class="adm-input" value="${p.sho||0}">
+            DEF: <input id="def-${p.id}" class="adm-input" value="${p.def||0}">
+            <label><input type="checkbox" id="champ-${p.id}"> É o Craque?</label>
+            <button class="btn-adm-save" onclick="updateStats('${p.id}')">Salvar</button>
         </div>
-        ${p.video ? `<a href="${p.video}" target="_blank" class="btn-video">🎬 Lance</a>` : ''}
-      </div>`;
-  }).join('');
+    `).join('');
 });
 </script>
 </body>
